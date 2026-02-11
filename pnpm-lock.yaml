@@ -11,9 +11,6 @@ importers:
       '@rollup/plugin-node-resolve':
         specifier: ^16.0.3
         version: 16.0.3(rollup@4.57.1)
-      '@tamp/utils':
-        specifier: workspace:*
-        version: link:packages/utils
       lerna:
         specifier: ^9.0.4
         version: 9.0.4
@@ -23,8 +20,11 @@ importers:
       rollup:
         specifier: ^4.57.1
         version: 4.57.1
+      tm-utils:
+        specifier: workspace:*
+        version: link:packages/utils
 
-  packages/scripts/sehuatang-thread-list: {}
+  packages/scripts/sehuatang-list: {}
 
   packages/utils: {}
 

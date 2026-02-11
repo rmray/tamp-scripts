@@ -1,5 +1,5 @@
 {
-  "name": "@tamp/utils",
+  "name": "tm-utils",
   "version": "1.1.0",
   "description": "公共工具库",
   "main": "index.js"

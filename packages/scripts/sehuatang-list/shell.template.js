@@ -9,7 +9,7 @@
 // @match        https://dmn12.vip/forum-*.html
 // @match        https://dmn12.vip/forum.php?mod=forumdisplay&fid=*
 
-// @require      file://D:/Code/Project/Tampermonkey/tamp-scripts/packages/scripts/sehuatang-thread-list/dist/bundle.js
+// @require      https://cdn.jsdelivr.net/gh/rmray/tamp-scripts@tamp/sehuatang-thread-list@1.1.0/packages/scripts/sehuatang-thread-list/dist/bundle.js
 // @run-at       document-end
 // @connect      【填入你的 API 域名】  // 例如：cdn.example.com
 // @grant        GM_xmlhttpRequest

@@ -1,5 +1,3 @@
-import { getCloudData } from './api.js'
-
 /** 获取URL */
 export function getUrl() {
   const href = window.location.href // https://fxc5.5qm5s.net/forum.php?mod=forumdisplay&fid=37&page=100

@@ -1,4 +1,4 @@
-import { createElement, api } from '@tamp/utils'
+import { createElement, api } from 'tm-utils'
 
 /** 全局变量 */
 let listEls = [] // 目录列表元素

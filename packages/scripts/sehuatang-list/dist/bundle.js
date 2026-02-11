@@ -1,6 +1,20 @@
 (function (exports) {
   'use strict';
 
+  /** [功能] 创建元素 */
+  function createElement(option) {
+    const { type = 'div', text = '', css = '', cNames = [], attrs = [], value = '' } = option;
+
+    const el = document.createElement(type);
+    el.innerText = text;
+    el.style.cssText = css;
+    if (el.value) el.value = value;
+    cNames.forEach((cName) => el.classList.add(cName));
+    attrs.forEach((attr) => el.setAttribute(attr.name, attr.value));
+
+    return el
+  }
+
   // #region GM网络请求 -------------------------------------------------------
 
   /** [功能] 封装 GM_xmlhttpRequest 为 Promise，用法和 fetch 类似 */
@@ -60,20 +74,6 @@
       console.error('❌ 获取云端数据失败：', err);
       return []
     }
-  }
-
-  /** [功能] 创建元素 */
-  function createElement(option) {
-    const { type = 'div', text = '', css = '', cNames = [], attrs = [], value = '' } = option;
-
-    const el = document.createElement(type);
-    el.innerText = text;
-    el.style.cssText = css;
-    if (el.value) el.value = value;
-    cNames.forEach((cName) => el.classList.add(cName));
-    attrs.forEach((attr) => el.setAttribute(attr.name, attr.value));
-
-    return el
   }
 
   /** 全局变量 */
@@ -228,4 +228,4 @@
 
   exports.main = main;
 
-})(this.MrSehuatangThreadList = this.MrSehuatangThreadList || {});
+})(this.MrSehuatangList = this.MrSehuatangList || {});
