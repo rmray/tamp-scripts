@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 1.1.1 (2026-02-11)
+
+
+### Bug Fixes
+
+* **sehuatang-list:** 解决 jsdelivr 无法识别标签中的 / 符号问题 ([722624e](https://github.com/rmray/tamp-scripts/commit/722624e66a0b2ea821801be15a6931de37a75855))
+
+
+
+
+
 # 1.1.0 (2026-02-11)
 
 
