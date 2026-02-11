@@ -13,8 +13,8 @@ const scriptPackages = fs.readdirSync(SCRIPTS_DIR).filter((dir) => {
 module.exports = scriptPackages.map((pkgName) => {
   const fullPkgDir = path.resolve(SCRIPTS_DIR, pkgName)
 
-  // a. 生成全局变量名，例如：utils => MrUtils
-  const globalName = 'Mr' + pkgName.charAt(0).toUpperCase() + pkgName.slice(1)
+  // a. 生成全局变量名，例如：sehuatang-thread-list => MrSehuatangThreadList
+  const globalName = 'Mr' + pkgName.split('-').map((item) => item.charAt(0).toUpperCase() + item.slice(1)).join('')
 
   // b. 生成 Rollup 配置
   return {

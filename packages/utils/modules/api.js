@@ -18,7 +18,8 @@ export async function getCloudData(key) {
   try {
     console.log('API: ', `${_config.baseUrl}?key=${key}`)
     const response = await gmFetch(`${_config.baseUrl}?key=${key}`)
-    return await response.json()
+    const responseJson = await response.json()
+    return JSON.parse(responseJson.value)
   } catch (err) {
     console.error('❌ 获取云端数据失败：', err)
     return []

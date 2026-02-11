@@ -1,3 +1,5 @@
+import { getCloudData } from './api.js'
+
 /** 获取URL */
 export function getUrl() {
   const href = window.location.href // https://fxc5.5qm5s.net/forum.php?mod=forumdisplay&fid=37&page=100
@@ -7,17 +9,6 @@ export function getUrl() {
   const searches = Object.fromEntries(new URLSearchParams(window.location.search)) // {mod: 'forumdisplay', fid: '37', page: '100'}
 
   return { origin, pathname, search, searches }
-}
-
-/** 判断是否已经标记过 */
-export function checkId(id) {
-  const downloads = cache.getItem('download') || []
-  const borings = cache.getItem('boring') || []
-
-  return {
-    isDownload: downloads.includes(id),
-    isBoring: borings.includes(id)
-  }
 }
 
 /** 生成标题章节数 */
