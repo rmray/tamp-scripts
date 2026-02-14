@@ -28,6 +28,8 @@ importers:
 
   packages/scripts/sehuatang-list: {}
 
+  packages/scripts/sehuatang-search: {}
+
   packages/utils: {}
 
 packages:

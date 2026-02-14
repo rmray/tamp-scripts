@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.4.0](https://github.com/rmray/tamp-scripts/compare/tm-sehuatang-list@1.3.0...tm-sehuatang-list@1.4.0) (2026-02-14)
+
+
+### Features
+
+* **sehuatang:** 提取工具函数到 sehuatang 模块 ([cd9e2e6](https://github.com/rmray/tamp-scripts/commit/cd9e2e6f89eac4e2359bcd9ff9642898bbe932b0))
+
+
+
+
+
 # [1.3.0](https://github.com/rmray/tamp-scripts/compare/tm-sehuatang-list@1.2.0...tm-sehuatang-list@1.3.0) (2026-02-14)
 
 
