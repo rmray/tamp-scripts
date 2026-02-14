@@ -10,13 +10,19 @@ export function gmFetch(url, options = {}) {
       data: options.body || null,
       // 模拟 fetch 的 response 对象
       onload: (res) => {
+        // console.log('gm-res: ', res)
         if (res.status >= 200 && res.status < 300) {
-          resolve({
-            ok: true,
-            status: res.status,
-            json: () => Promise.resolve(JSON.parse(res.responseText)),
-            text: () => Promise.resolve(res.responseText)
-          })
+          const resJson = res.responseText ? JSON.parse(res.responseText) : null
+          if (!resJson.success) {
+            reject(new Error(`Custom Error: ${res.status} ${resJson.error || res.response}`))
+          } else {
+            resolve({
+              ok: true,
+              status: res.status,
+              json: () => Promise.resolve(JSON.parse(res.responseText)),
+              text: () => Promise.resolve(res.responseText)
+            })
+          }
         } else {
           reject(new Error(`HTTP Error: ${res.status} ${res.statusText}`))
         }
