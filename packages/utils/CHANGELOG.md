@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.5.0](https://github.com/rmray/tamp-scripts/compare/tm-utils@1.4.0...tm-utils@1.5.0) (2026-02-14)
+
+
+### Features
+
+* **sehuatang-detail:** 搜索番号/女优功能 ([05a19e0](https://github.com/rmray/tamp-scripts/commit/05a19e0e0a55a83bf9aa6787ee25e5c7d9fcde70))
+
+
+
+
+
 # [1.4.0](https://github.com/rmray/tamp-scripts/compare/tm-utils@1.3.0...tm-utils@1.4.0) (2026-02-14)
 
 

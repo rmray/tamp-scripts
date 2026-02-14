@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.3.0](https://github.com/rmray/tamp-scripts/compare/tm-sehuatang-list@1.2.0...tm-sehuatang-list@1.3.0) (2026-02-14)
+
+
+### Features
+
+* **sehuatang-detail:** 搜索番号/女优功能 ([05a19e0](https://github.com/rmray/tamp-scripts/commit/05a19e0e0a55a83bf9aa6787ee25e5c7d9fcde70))
+* **suhuatang:** 功能：高亮被标记为喜欢的链接、优化网络请求调用 ([5c34eb3](https://github.com/rmray/tamp-scripts/commit/5c34eb30ce1673d26b262856b31d342643a6e837))
+
+
+
+
+
 # [1.2.0](https://github.com/rmray/tamp-scripts/compare/tm-sehuatang-list@1.1.2...tm-sehuatang-list@1.2.0) (2026-02-14)
 
 
