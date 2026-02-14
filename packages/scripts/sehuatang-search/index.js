@@ -1,8 +1,9 @@
-import { api, removeAd } from 'tm-utils'
+import { api, removeAd, getUrl } from 'tm-utils'
 
 /** 全局变量 */
 const filterSections = ['求片问答悬赏区', 'AI专区'] // 需要过滤掉的板块
 let searchResultEls = [] // 搜索结果元素列表
+let url = getUrl() // 获取URL：origin, pathname, search, searches
 
 // #region 主方法 -------------------------------------------------------
 
@@ -12,13 +13,37 @@ export async function main(config = {}) {
   api.initConfig({ baseUrl: config.BASE_API_URL })
   removeAd() // 去除广告
 
-  // 2. 搜索结果
+  // 2. 执行搜索
+  execSearch() // 根据 URL 参数执行搜索
+
+  // 3. 高亮/过滤搜索结果
   searchResultEls = getSearchResult() // 获取搜索结果元素列表
   filterUselessSearchResult() // 过滤无效的搜索结果
   heightSpecialResult() // 高亮破解和无码帖子
 
-  // 3. 倒计时
+  // 4. 倒计时
   startCountdown() // 启动30秒倒计时
+}
+
+// #endregion
+
+// #region 搜索 -------------------------------------------------------
+
+/** [功能] 根据 URL 参数执行搜索 */
+function execSearch() {
+  // 判断当前页面是否是已经有搜索结果了
+  const hasReults = document.querySelectorAll('.pbw .xs3').length > 0
+  if (hasReults) return
+
+  const searchInputEl = document.querySelector('#scform_srchtxt') // 搜索输入框元素
+  const searchBtnEl = document.querySelector('#scform_submit') // 搜索按钮元素
+  if (!searchInputEl || !searchBtnEl) return
+
+  const keyword = url.searches.kw
+  if (!keyword) return
+
+  searchInputEl.value = keyword // 将 URL 参数中的关键词填入搜索输入框
+  searchBtnEl.click() // 点击搜索按钮
 }
 
 // #endregion
@@ -33,7 +58,7 @@ function getSearchResult() {
 /** 过滤无效的搜索结果 */
 function filterUselessSearchResult() {
   searchResultEls.forEach((item) => {
-    const section = item.querySelector('.xi1').textContent
+    const section = item.querySelector('.xi1')?.textContent
     if (filterSections.includes(section)) {
       item.style.display = 'none'
     }

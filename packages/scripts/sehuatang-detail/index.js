@@ -34,8 +34,7 @@ let unBanBtn = null // Unban 按钮
 let unFavBtn = null // Unfav 按钮
 
 // 搜索番号功能
-const SEHUATANG_SEARCH_BASE_URL =
-  '/search.php?mod=forum&searchid=0&searchmd5=718fd9a1791fbce8968a682435a51b33&orderby=lastpost&ascdesc=desc&searchsubmit=yes&kw='
+const SEHUATANG_SEARCH_BASE_URL = '/search.php?mod=forum'
 const JAVBUS_SEARCH_BASE_URL = 'https://www.busjav.bond/'
 let searchBaseUrls = [SEHUATANG_SEARCH_BASE_URL, JAVBUS_SEARCH_BASE_URL] // 目标搜索引擎 URL 列表
 
@@ -265,8 +264,13 @@ function searchBtnsClick() {
       searchBaseUrls.forEach((baseUrl) => {
         let searchUrl = ''
         if (isIdolSearch && (baseUrl.toLowerCase().includes('busjav') || baseUrl.toLowerCase().includes('javbus'))) {
+          // 女优搜索且目标搜索引擎是 Javbus，使用特殊的搜索 URL 结构
           searchUrl = baseUrl + 'search/' + encodeURIComponent(keyword)
+        } else if (baseUrl.toLowerCase().includes('/search.php')) {
+          // 目标搜索引擎是 Sehuatang，特殊处理
+          searchUrl = baseUrl + '&kw=' + encodeURIComponent(keyword)
         } else {
+          // 其他情况使用通用的搜索 URL 结构
           searchUrl = baseUrl + encodeURIComponent(keyword)
         }
 

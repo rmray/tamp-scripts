@@ -35,6 +35,16 @@
   `);
   }
 
+  /** 获取URL */
+  function getUrl() {
+    const origin = window.location.origin; // https://fxc5.5qm5s.net
+    const pathname = window.location.pathname; // /forum.php
+    const search = window.location.search; // ?mod=forumdisplay&fid=37&page=100
+    const searches = Object.fromEntries(new URLSearchParams(window.location.search)); // {mod: 'forumdisplay', fid: '37', page: '100'}
+
+    return { origin, pathname, search, searches }
+  }
+
   /** 去除广告 */
   function removeAd() {
     const adSelectors = ['.show-text', '.show-text2', '.show-text4'];
@@ -59,6 +69,7 @@
   /** 全局变量 */
   const filterSections = ['求片问答悬赏区', 'AI专区']; // 需要过滤掉的板块
   let searchResultEls = []; // 搜索结果元素列表
+  let url = getUrl(); // 获取URL：origin, pathname, search, searches
 
   // #region 主方法 -------------------------------------------------------
 
@@ -68,13 +79,37 @@
     initConfig({ baseUrl: config.BASE_API_URL });
     removeAd(); // 去除广告
 
-    // 2. 搜索结果
+    // 2. 执行搜索
+    execSearch(); // 根据 URL 参数执行搜索
+
+    // 3. 高亮/过滤搜索结果
     searchResultEls = getSearchResult(); // 获取搜索结果元素列表
     filterUselessSearchResult(); // 过滤无效的搜索结果
     heightSpecialResult(); // 高亮破解和无码帖子
 
-    // 3. 倒计时
+    // 4. 倒计时
     startCountdown(); // 启动30秒倒计时
+  }
+
+  // #endregion
+
+  // #region 搜索 -------------------------------------------------------
+
+  /** [功能] 根据 URL 参数执行搜索 */
+  function execSearch() {
+    // 判断当前页面是否是已经有搜索结果了
+    const hasReults = document.querySelectorAll('.pbw .xs3').length > 0;
+    if (hasReults) return
+
+    const searchInputEl = document.querySelector('#scform_srchtxt'); // 搜索输入框元素
+    const searchBtnEl = document.querySelector('#scform_submit'); // 搜索按钮元素
+    if (!searchInputEl || !searchBtnEl) return
+
+    const keyword = url.searches.kw;
+    if (!keyword) return
+
+    searchInputEl.value = keyword; // 将 URL 参数中的关键词填入搜索输入框
+    searchBtnEl.click(); // 点击搜索按钮
   }
 
   // #endregion
@@ -89,7 +124,7 @@
   /** 过滤无效的搜索结果 */
   function filterUselessSearchResult() {
     searchResultEls.forEach((item) => {
-      const section = item.querySelector('.xi1').textContent;
+      const section = item.querySelector('.xi1')?.textContent;
       if (filterSections.includes(section)) {
         item.style.display = 'none';
       }
