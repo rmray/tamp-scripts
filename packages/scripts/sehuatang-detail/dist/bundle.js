@@ -140,6 +140,134 @@
 
   // #endregion
 
+  /** 去除广告 */
+  function removeAd() {
+    const adSelectors = ['.show-text', '.show-text2', '.show-text4'];
+    adSelectors.forEach((selector) => {
+      const elements = document.querySelectorAll(selector);
+      elements.forEach((el) => el.remove());
+    });
+  }
+
+  /** [工具方法] 获取帖子ID */
+  function getId(url) {
+    return Number(url.pathname.startsWith('/forum.php') ? url.searches.tid : url.pathname.split('-')[1])
+  }
+
+  /**
+   * [工具方法] 匹配指定内容
+   * target: 可选值：idol/code/magnet/torrent
+   */
+  function matchContent(target) {
+    let matched = null;
+    let match = null;
+
+    // 1. 获取帖子内容元素
+    const postMsgEl = document.querySelector('#postlist div[id^="post_"] td[id^="postmessage_"]');
+    const titleEl = document.querySelector('#thread_subject');
+    // console.log(titleEl)
+    if (!postMsgEl) return
+
+    // 2. 根据目标类型匹配内容
+    switch (target) {
+      case 'idol':
+        match = postMsgEl.textContent.match(/(?:【出演女优】|出演者)[:：][ \t]*([^\n\r]*)/);
+        // console.log(postMsgEl.textContent)
+        if (match && match[1]) {
+          matched = match[1]
+            .split(/&nbsp;|\s/)
+            .map((name) => name.trim())
+            .filter((name) => name);
+        }
+        break
+      case 'code':
+        match = titleEl.textContent.match(/^(Tokyo Hot\s+n\d+|[a-zA-Z0-9]+-[a-zA-Z0-9-]+(?<!-))/);
+        // console.log(match)
+        if (match && match[1]) {
+          matched = match[1].trim().toUpperCase();
+        }
+        break
+    }
+
+    // 3. 返回匹配结果
+    return matched
+  }
+
+  /** [工具方法] 创建分页行按钮 */
+  async function createPageBtns(options = {}) {
+    // 1. 获取变量
+    let { type, text, values = [], textActive = text, datas = [], id = null } = options;
+    const btns = [];
+    const paginationEl = document.getElementById('pgt'); // 头部分页行
+
+    // 2. 创建书签按钮元素
+    let i = 0;
+    do {
+      let textOrigin = text;
+      let btn = null;
+
+      if (values.length) {
+        textOrigin = textOrigin + ' ' + values[i];
+      }
+
+      if (type === 'search-mode') {
+        // 3. 特殊处理 search-mode 情况
+        btn = createElement({
+          type: 'select',
+          name: 'mode',
+          cNames: [`${type}-select`, 'page-btn']
+        });
+        btn.innerHTML = `
+        <option value="both" selected>同时搜索</option>
+        <option value="sehuatang">色花堂</option>
+        <option value="javbus">JavBus</option>  
+      `;
+      } else {
+        btn = createElement({
+          type: type === 'button',
+          text: textOrigin,
+          cNames: [`${type}-btn`, 'page-btn']
+        });
+      }
+
+      // 3. 特殊处理 bookmark 情况
+      if (type === 'bookmark') {
+        const bookmarks = datas;
+        // 根据 bookmarks 列表设置按钮状态
+        if (bookmarks.includes(id)) {
+          btn.classList.add('active');
+          btn.innerHTML = textActive;
+        }
+      }
+
+      // 4. 将按钮添加到页面，同时返回按钮元素
+      paginationEl?.append(btn);
+      btns.push(btn);
+      i++;
+    } while (i < values.length)
+
+    return btns
+  }
+
+  // #region 网络请求 -------------------------------------------------------
+
+  /** [功能] 获取书签列表 */
+  async function fetchBookmarks() {
+    return getCloudData('sehuatang/bookmarks')
+  }
+
+  /** [功能] 获取 Ban 列表 */
+  async function fetchBannedIdols() {
+    return getCloudData('sehuatang/bannedIdols')
+  }
+
+  /** [功能] 获取 Fav 列表 */
+  async function fetchFavoriteIdols() {
+    return getCloudData('sehuatang/favoriteIdols')
+  }
+
+  // #endregion
+
   let _config = {
     baseUrl: null
   };
@@ -230,10 +358,7 @@
 
   // 通用变量
   const url = getUrl(); // 获取URL：origin, pathname, search, searches
-  const id = getId(); // 获取帖子ID
-
-  // 页面元素
-  const paginationEl = document.getElementById('pgt'); // 头部分页行
+  const id = getId(url); // 获取帖子ID
 
   // 书签功能
   let bookmarkBtns = []; // 书签按钮
@@ -261,17 +386,24 @@
     // 1. 初始化配置
     if (!config.BASE_API_URL) throw new Error('缺少配置项: BASE_API_URL')
     initConfig({ baseUrl: config.BASE_API_URL });
+    removeAd(); // 去除广告
 
     // 2. CSS 样式
     setStyle(); // 设置 CSS 样式
 
     // 3. 网络请求
-    await fetchBookmarks(); // 请求书签列表数据
-    await fetchBannedIdols(); // 请求 Ban 列表数据
-    await fetchFavoriteIdols(); // 请求 Fav 列表数据
+    bookmarks = await fetchBookmarks(); // 请求书签列表数据
+    bannedIdols = await fetchBannedIdols(); // 请求 Ban 列表数据
+    favoriteIdols = await fetchFavoriteIdols(); // 请求 Fav 列表数据
 
     // 4. 书签功能
-    bookmarkBtns = await createPageBtns({ type: 'bookmark', text: '添加书签', textActive: '书签已添加' }); // 创建书签按钮
+    bookmarkBtns = await createPageBtns({
+      type: 'bookmark',
+      text: '添加书签',
+      textActive: '书签已添加',
+      datas: bookmarks,
+      id
+    }); // 创建书签按钮
     bookmarkBtnClick(); // 书签按钮点击事件
 
     // 5. Ban/Fav 功能
@@ -300,25 +432,6 @@
     /** Ban 和 Fav 表单 */
     .ban-fav-container { width: 300px; position: fixed; top: 20px; right: 20px; padding: 10px; box-sizing: border-box; background-color: #fff; }
   `);
-  }
-
-  // #endregion
-
-  // #region 网络请求 -------------------------------------------------------
-
-  /** [功能] 获取书签列表 */
-  async function fetchBookmarks() {
-    bookmarks = await getCloudData('sehuatang/bookmarks');
-  }
-
-  /** [功能] 获取 Ban 列表 */
-  async function fetchBannedIdols() {
-    bannedIdols = await getCloudData('sehuatang/bannedIdols');
-  }
-
-  /** [功能] 获取 Fav 列表 */
-  async function fetchFavoriteIdols() {
-    favoriteIdols = await getCloudData('sehuatang/favoriteIdols');
   }
 
   // #endregion
@@ -402,7 +515,7 @@
 
     // 3. 根据 bannedIdols 和 favoriteIdols 列表设置女优状态
     idolNames.forEach((name) => {
-      console.log(idolNames, banBtn, favBtn);
+      // console.log(idolNames, banBtn, favBtn)
       if (bannedIdols.length > 0 && bannedIdols.includes(name)) {
   [banBtn, favBtn, unFavBtn].forEach((btn) => {
           btn.disabled = true;
@@ -497,108 +610,6 @@
         });
       });
     });
-  }
-
-  // #endregion
-
-  // #region 工具方法 -------------------------------------------------------
-
-  /** [工具方法] 获取帖子ID */
-  function getId() {
-    return Number(url.pathname.startsWith('/forum.php') ? url.searches.tid : url.pathname.split('-')[1])
-  }
-
-  /**
-   * [工具方法] 匹配指定内容
-   * target: 可选值：idol/code/magnet/torrent
-   */
-  function matchContent(target) {
-    let matched = null;
-    let match = null;
-
-    // 1. 获取帖子内容元素
-    const postMsgEl = document.querySelector('#postlist div[id^="post_"] td[id^="postmessage_"]');
-    const titleEl = document.querySelector('#thread_subject');
-    console.log(titleEl);
-    if (!postMsgEl) return
-
-    // 2. 根据目标类型匹配内容
-    switch (target) {
-      case 'idol':
-        match = postMsgEl.textContent.match(/(?:【出演女优】|出演者)[:：][ \t]*([^\n\r]*)/);
-        // console.log(postMsgEl.textContent)
-        if (match && match[1]) {
-          matched = match[1]
-            .split(/&nbsp;|\s/)
-            .map((name) => name.trim())
-            .filter((name) => name);
-        }
-        break
-      case 'code':
-        match = titleEl.textContent.match(/^(Tokyo Hot\s+n\d+|[a-zA-Z0-9]+-[a-zA-Z0-9-]+(?<!-))/);
-        console.log(match);
-        if (match && match[1]) {
-          matched = match[1].trim().toUpperCase();
-        }
-        break
-    }
-
-    // 3. 返回匹配结果
-    return matched
-  }
-
-  /** [工具方法] 创建分页行按钮 */
-  async function createPageBtns(options = {}) {
-    // 1. 获取变量
-    let { type, text, values = [], textActive = text } = options;
-    const btns = [];
-
-    // 2. 创建书签按钮元素
-    let i = 0;
-    do {
-      let textOrigin = text;
-      let btn = null;
-
-      if (values.length) {
-        textOrigin = textOrigin + ' ' + values[i];
-      }
-
-      if (type === 'search-mode') {
-        // 3. 特殊处理 search-mode 情况
-        btn = createElement({
-          type: 'select',
-          name: 'mode',
-          cNames: [`${type}-select`, 'page-btn']
-        });
-        btn.innerHTML = `
-        <option value="both" selected>同时搜索</option>
-        <option value="sehuatang">色花堂</option>
-        <option value="javbus">JavBus</option>  
-      `;
-      } else {
-        btn = createElement({
-          type: type === 'button',
-          text: textOrigin,
-          cNames: [`${type}-btn`, 'page-btn']
-        });
-      }
-
-      // 3. 特殊处理 bookmark 情况
-      if (type === 'bookmark') {
-        // 根据 bookmarks 列表设置按钮状态
-        if (bookmarks.includes(id)) {
-          btn.classList.add('active');
-          btn.innerHTML = textActive;
-        }
-      }
-
-      // 4. 将按钮添加到页面，同时返回按钮元素
-      paginationEl?.append(btn);
-      btns.push(btn);
-      i++;
-    } while (i < values.length)
-
-    return btns
   }
 
   // #endregion

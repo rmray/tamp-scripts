@@ -1,4 +1,4 @@
-import { createElement, api } from 'tm-utils'
+import { createElement, api, removeAd, fetchBookmarks, fetchBannedIdols, fetchFavoriteIdols } from 'tm-utils'
 
 /** 全局变量 */
 
@@ -16,11 +16,12 @@ export async function main(config = {}) {
   // 1. 初始化配置
   if (!config.BASE_API_URL) throw new Error('缺少配置项: BASE_API_URL')
   api.initConfig({ baseUrl: config.BASE_API_URL })
+  removeAd() // 去除广告
 
-  // 2. 网络请求
-  await fetchBookmarks() // 请求书签列表数据
-  await fetchBannedIdols() // 请求 Ban 列表数据
-  await fetchFavoriteIdols() // 请求 Fav 列表数据
+  // 3. 网络请求
+  bookmarks = await fetchBookmarks() // 请求书签列表数据
+  bannedIdols = await fetchBannedIdols() // 请求 Ban 列表数据
+  favoriteIdols = await fetchFavoriteIdols() // 请求 Fav 列表数据
 
   // 3. 过滤列表
   listEls = getListEl() // 获取目录列表
@@ -32,25 +33,6 @@ export async function main(config = {}) {
   // 4. 批量打开链接
   createLink() // 创建批量打开链接按钮
   batchOpenLink() // 批量打开链接
-}
-
-// #endregion
-
-// #region 网络请求 -------------------------------------------------------
-
-/** [功能] 获取书签列表 */
-async function fetchBookmarks() {
-  bookmarks = await api.getCloudData('sehuatang/bookmarks')
-}
-
-/** [功能] 获取 Ban 列表 */
-async function fetchBannedIdols() {
-  bannedIdols = await api.getCloudData('sehuatang/bannedIdols')
-}
-
-/** [功能] 获取 Fav 列表 */
-async function fetchFavoriteIdols() {
-  favoriteIdols = await api.getCloudData('sehuatang/favoriteIdols')
 }
 
 // #endregion
@@ -102,7 +84,7 @@ async function highlightMarked() {
 /** [功能] 高亮被标记为喜欢的链接 */
 async function hightlightFavorite() {
   listEls.forEach((el) => {
-    console.log(el.innerText)
+    // console.log(el.innerText)
     const title = el.innerText
     const isFavorite = favoriteIdols.some((idol) => title.includes(idol))
     if (isFavorite) el.style.backgroundColor = '#b5fab5'
