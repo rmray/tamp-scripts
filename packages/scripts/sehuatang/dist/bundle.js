@@ -57,7 +57,14 @@
   // #endregion
 
   /** 常量 */
-  const COOLDOWN_DURATION = 30 * 1000; // 冷却时间 30 秒（毫秒）
+  const COOLDOWN_SHORT = 30 * 1000; // 冷却时间 30 秒（毫秒）
+  const COOLDOWN_LONG = 5 * 60 * 1000; // 冷却时间 5 分钟（毫秒）
+
+  /** [工具] 根据时段获取冷却时长（19:00-24:00 为 5 分钟，其余 30 秒） */
+  function getCooldownDuration() {
+    const hour = new Date().getHours();
+    return hour >= 19 ? COOLDOWN_LONG : COOLDOWN_SHORT
+  }
   const STORAGE_KEY = 'search_cooldown_endtime'; // localStorage Key
   const SEARCH_BTN_SELECTORS = '#scbar_btn, .search-button, #scform_submit, #scform_submit'; // 搜索按钮选择器
 
@@ -151,10 +158,11 @@
   /** [核心] 写入新的冷却结束时间并启动倒计时 */
   function activateCooldown() {
     console.log('保存冷却时间');
-    const endTime = Date.now() + COOLDOWN_DURATION;
+    const duration = getCooldownDuration();
+    const endTime = Date.now() + duration;
     localStorage.setItem(STORAGE_KEY, String(endTime));
 
-    showCountdownUI(Math.ceil(COOLDOWN_DURATION / 1000));
+    showCountdownUI(Math.ceil(duration / 1000));
     startCountdownInterval();
   }
 

@@ -1,8 +1,15 @@
 import { api, removeAd, getUrl } from 'tm-utils'
 
 /** 常量（与全局脚本 sehuatang/index.js 共享） */
-const COOLDOWN_DURATION = 30 * 1000 // 冷却时间 30 秒（毫秒）
+const COOLDOWN_SHORT = 30 * 1000 // 冷却时间 30 秒（毫秒）
+const COOLDOWN_LONG = 5 * 60 * 1000 // 冷却时间 5 分钟（毫秒）
 const STORAGE_KEY = 'search_cooldown_endtime' // localStorage Key
+
+/** [工具] 根据时段获取冷却时长（19:00-24:00 为 5 分钟，其余 30 秒） */
+function getCooldownDuration() {
+  const hour = new Date().getHours()
+  return hour >= 19 ? COOLDOWN_LONG : COOLDOWN_SHORT
+}
 
 /** 全局变量 */
 const filterSections = ['求片问答悬赏区', 'AI专区'] // 需要过滤掉的板块
@@ -48,7 +55,7 @@ function execSearch() {
   if (endTime && Number(endTime) > Date.now()) return
 
   // 写入新的冷却结束时间
-  localStorage.setItem(STORAGE_KEY, String(Date.now() + COOLDOWN_DURATION))
+  localStorage.setItem(STORAGE_KEY, String(Date.now() + getCooldownDuration()))
 
   searchInputEl.value = keyword // 将 URL 参数中的关键词填入搜索输入框
   searchBtnEl.click() // 点击搜索按钮
