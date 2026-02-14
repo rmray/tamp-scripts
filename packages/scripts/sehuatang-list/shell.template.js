@@ -12,7 +12,7 @@
 // @match        https://dmn12.vip/forum.php?mod=forumdisplay&fid=*
 
 // @require      file://D:/Code/Project/Tampermonkey/tamp-scripts/packages/scripts/sehuatang-list/dist/bundle.js
-// @icon      https://cdn.jsdelivr.net/gh/rmray/tamp-scripts@tm-sehuatang-list@1.1.1/packages/scripts/sehuatang-list/dist/bundle.js
+// @icon      https://fastly.jsdelivr.net/gh/rmray/tamp-scripts@tm-sehuatang-list@1.1.1/packages/scripts/sehuatang-list/dist/bundle.js
 // @run-at       document-end
 // @connect      127.0.0.1
 // @connect      【远程域名】

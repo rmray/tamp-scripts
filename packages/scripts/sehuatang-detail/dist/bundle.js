@@ -48,7 +48,7 @@
   /** [功能] 消息提示（支持多条堆叠） */
   const _toastList = [];
   const TOAST_GAP = 10; // toast 之间的间距
-  const TOAST_TOP = 20; // 第一个 toast 距顶部的距离
+  const TOAST_TOP = 200; // 第一个 toast 距顶部的距离
 
   function _updateToastPositions() {
     let currentTop = TOAST_TOP;
@@ -60,12 +60,16 @@
 
   function _removeToast(toast) {
     toast.classList.add('tm-toast-out');
-    toast.addEventListener('animationend', () => {
-      const idx = _toastList.indexOf(toast);
-      if (idx > -1) _toastList.splice(idx, 1);
-      toast.remove();
-      _updateToastPositions();
-    }, { once: true });
+    toast.addEventListener(
+      'animationend',
+      () => {
+        const idx = _toastList.indexOf(toast);
+        if (idx > -1) _toastList.splice(idx, 1);
+        toast.remove();
+        _updateToastPositions();
+      },
+      { once: true }
+    );
   }
 
   function showToast(message, type = 'success') {
@@ -188,6 +192,7 @@
     } catch (err) {
       console.log(`❌ 保存 ${key} 数据到云端失败：`, err);
       showToast(`❌ 保存 ${key} 数据到云端失败：${err}`, 'error');
+      throw err
     }
   }
 
@@ -211,16 +216,28 @@
     } catch (err) {
       console.log(`❌ 移除云端 ${key} 数据失败：`, err);
       showToast(`❌ 移除云端 ${key} 数据失败：${err}`, 'error');
+      throw err
     }
   }
 
   /** 全局变量 */
-  // let cache = getCache() // 本地存储
   const url = getUrl(); // 获取URL：origin, pathname, search, searches
   const id = getId(); // 获取帖子ID
   const paginationEl = document.getElementById('pgt'); // 头部分页行
+  // 书签功能
   let bookmarkBtn = null; // 书签按钮
+  // Ban/Fav 功能
+  let idolNames = []; // 帖子中出现的女优名字列表
+  let idolsInput = null; // Ban/Fav 输入框
+  let banBtn = null; // Ban 按钮
+  let favBtn = null; // Fav 按钮
+  let unBanBtn = null; // Unban 按钮
+  let unFavBtn = null; // Unfav 按钮
+
+  // 网络请求数据
   let bookmarks = []; // 书签列表
+  let bannedIdols = []; // Ban 列表
+  let favoriteIdols = []; // Fav 列表
 
   async function main(config) {
     // 1. 初始化配置
@@ -231,13 +248,16 @@
     setStyle(); // 设置 CSS 样式
 
     // 3. 书签功能
-    await getBookmarks(); // 获取书签列表
+    await fetchBookmarks(); // 请求书签列表数据
     createBookmarkBtn(); // 创建书签按钮
     bookmarkBtnClick(); // 书签按钮点击事件
 
     // 4. Ban/Fav 功能
-    createBanFavForm(); // 创建 Ban/Unban 和 Fav/Unfav 表单
-    updateIdols(); // 更新女优状态
+    await fetchBannedIdols(); // 请求 Ban 列表数据
+    await fetchFavoriteIdols(); // 请求 Fav 列表数据
+    await createBanFavForm(); // 创建 Ban/Unban 和 Fav/Unfav 表单
+    await initIdolStatus(); // 初始化女优状态
+    updateIdolStatus(); // 更新女优状态
   }
 
   // #region CSS 样式 -------------------------------------------------------
@@ -250,7 +270,7 @@
     .bookmark-btn.active { background: blue; color: #fff; }
 
     /** Ban 和 Fav 表单 */
-    .ban-fav-container { width: 300px; position: fixed; top: 50px; left: 60px; padding: 10px; box-sizing: border-box; background-color: #fff; }
+    .ban-fav-container { width: 300px; position: fixed; top: 20px; right: 20px; padding: 10px; box-sizing: border-box; background-color: #fff; }
   `);
   }
 
@@ -259,7 +279,7 @@
   // #region 书签功能 -------------------------------------------------------
 
   /** [功能] 获取书签列表 */
-  async function getBookmarks() {
+  async function fetchBookmarks() {
     bookmarks = await getCloudData('sehuatang/bookmarks');
   }
 
@@ -316,8 +336,19 @@
 
   // #region Ban/Fav 功能 -------------------------------------------------------
 
+  /** [功能] 获取 Ban 列表 */
+  async function fetchBannedIdols() {
+    bannedIdols = await getCloudData('sehuatang/bannedIdols');
+  }
+
+  /** [功能] 获取 Fav 列表 */
+  async function fetchFavoriteIdols() {
+    favoriteIdols = await getCloudData('sehuatang/favoriteIdols');
+  }
+
   /** [功能] 创建 Ban/Unban 和 Fav/Unfav 表单 */
-  function createBanFavForm() {
+  async function createBanFavForm() {
+    // 1. 创建表单容器元素
     const container = createElement({
       type: 'div',
       cNames: ['ban-fav-container']
@@ -325,22 +356,68 @@
     container.innerHTML = `
     <h3 style="font-size: 18px; text-align: center; ">Ban / Fav 女优</h3>
     <div id="ban-fav-form">
-      <textarea name="idols" placeholder="输入女优名字，多个用英文逗号分隔" style="width: 97%; height: 80px;"></textarea>
+      <textarea id="idols"  name="idols" placeholder="输入女优名字，多个用英文逗号分隔" style="width: 97%; height: 40px;"></textarea>
       <div style="margin-bottom: 10px;">
-        <button class="ban" style="width: 48%; padding: 4px 0; margin-right: 2%;">Ban</button>
-        <button class="unban" style="width: 48%; padding: 4px 0;">Unban</button>
+        <button class="ban" id="ban" style="width: 48%; padding: 4px 0; margin-right: 2%;">Ban</button>
+        <button class="unban" id="unban" style="width: 48%; padding: 4px 0;">Unban</button>
       </div>
       <div>
-        <button class="fav" style="width: 48%; padding: 4px 0; margin-right: 2%;">Fav</button>
-        <button class="unfav" style="width: 48%; padding: 4px 0;">Unfav</button>
+        <button class="fav" id="fav" style="width: 48%; padding: 4px 0; margin-right: 2%;">Fav</button>
+        <button class="unfav" id="unfav" style="width: 48%; padding: 4px 0;">Unfav</button>
       </div>
     </div>
   `;
     document.body.appendChild(container);
+
+    // 2. 获取 Ban 和 Fav 按钮元素
+    idolsInput = document.getElementById('idols'); // Ban/Fav 输入框
+    banBtn = document.getElementById('ban'); // Ban 按钮
+    favBtn = document.getElementById('fav'); // Fav 按钮
+    unBanBtn = document.getElementById('unban'); // Unban 按钮
+    unFavBtn = document.getElementById('unfav'); // Unfav 按钮
+  }
+
+  /** [功能] 初始化女优状态 */
+  async function initIdolStatus() {
+    // 1. 获取页面中所有的女优名字元素
+    const postMsgEl = document.querySelector('#postlist div[id^="post_"] td[id^="postmessage_"]');
+    if (!postMsgEl) return
+    const match = postMsgEl.textContent.match(/出演者：\s*([^\n\r]+)/);
+    // const match = postMsgEl.textContent.match(/出演者：(?:&nbsp;|\s)*(.*?)/)
+    if (match && match[1]) {
+      idolNames = match[1]
+        .split(/&nbsp;|\s/)
+        .map((name) => name.trim())
+        .filter((name) => name);
+    }
+
+    // 2. 自动填充 Ban/Fav 输入框
+    if (idolNames.length > 0) {
+      idolsInput.value = idolNames.join(',');
+    }
+
+    // 3. 根据 bannedIdols 和 favoriteIdols 列表设置女优状态
+    idolNames.forEach((name) => {
+      console.log(idolNames, banBtn, favBtn);
+      if (bannedIdols.length > 0 && bannedIdols.includes(name)) {
+  [banBtn, favBtn, unFavBtn].forEach((btn) => {
+          btn.disabled = true;
+          btn.style.opacity = '0.5';
+          btn.style.cursor = 'not-allowed';
+        });
+      }
+      if (favoriteIdols.length > 0 && favoriteIdols.includes(name)) {
+  [favBtn, banBtn, unBanBtn].forEach((btn) => {
+          btn.disabled = true;
+          btn.style.opacity = '0.5';
+          btn.style.cursor = 'not-allowed';
+        });
+      }
+    });
   }
 
   /** [功能] 更新女优状态 */
-  function updateIdols() {
+  function updateIdolStatus() {
     const options = ['ban', 'unban', 'fav', 'unfav'];
 
     // 1. 批量绑定按钮事件
@@ -367,7 +444,7 @@
         }
 
         // 4. 更新并高亮按钮状态
-        this.style.backgroundColor = 'blue';
+        this.style.backgroundColor = 'red';
         this.style.color = '#fff';
       });
     });

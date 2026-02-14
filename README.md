@@ -378,7 +378,7 @@ _这是你安装到浏览器的真实文件。_
 
 3. 修改 `index.js` 或 `utils` 代码，Rollup 会自动重新打包，浏览器刷新即生效。
 
-### 发布阶段 (Release)
+### 发布阶段@
 
 ~~发布阶段 (Release)~~:
 
@@ -387,23 +387,35 @@ _这是你安装到浏览器的真实文件。_
 1. **构建产物**：
 
    ```bash
-   npm run build
-   
+   pnpm run build
    ```
+   
+   _(此时 packages/scripts/google/dist/bundle.js 更新了)_
 
-_(此时 packages/scripts/google/dist/bundle.js 更新了)_
+2. **执行 Git 提交**
 
+   ```bash
+   # 1. 根据不同的模块分别提交（只提交，不要推送）
+   git add <某个模块的改动文件>
+   git status # 确认添加到暂存区的文件没有问题
+   git commit -m "<提交说明>"
+   
+   # 2. 其他模块：重复步骤1的过程
+   ```
+   
 2. **Lerna 发版**：
 
    ```bash
-   npx lerna version
+   pnpm run realease
    
+   # 内部会执行2个步骤
+   # "lerna version --conventional-commits --yes && git push --follow-tags"
    ```
-
+   
    - Lerna 会检测到 `@my/google-script` 变了。
    - 选择版本号（例如从 1.0.0 -> 1.0.1）。
    - Lerna 会自动打 Git Tag: `@my/google-script@1.0.1`。
-   - Lerna 会推送代码和 Tags 到 GitHub。
+   - Lerna 会推送代码和 Tags 到 GitHub（只推送 tag 相关的内容到 GitHub）。
 
 ### 使用阶段 (Update Shell)
 

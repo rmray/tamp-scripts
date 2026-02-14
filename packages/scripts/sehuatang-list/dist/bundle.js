@@ -38,7 +38,7 @@
   /** [功能] 消息提示（支持多条堆叠） */
   const _toastList = [];
   const TOAST_GAP = 10; // toast 之间的间距
-  const TOAST_TOP = 20; // 第一个 toast 距顶部的距离
+  const TOAST_TOP = 200; // 第一个 toast 距顶部的距离
 
   function _updateToastPositions() {
     let currentTop = TOAST_TOP;
@@ -50,12 +50,16 @@
 
   function _removeToast(toast) {
     toast.classList.add('tm-toast-out');
-    toast.addEventListener('animationend', () => {
-      const idx = _toastList.indexOf(toast);
-      if (idx > -1) _toastList.splice(idx, 1);
-      toast.remove();
-      _updateToastPositions();
-    }, { once: true });
+    toast.addEventListener(
+      'animationend',
+      () => {
+        const idx = _toastList.indexOf(toast);
+        if (idx > -1) _toastList.splice(idx, 1);
+        toast.remove();
+        _updateToastPositions();
+      },
+      { once: true }
+    );
   }
 
   function showToast(message, type = 'success') {

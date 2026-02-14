@@ -54,6 +54,7 @@ export async function setCloudData(key, values) {
   } catch (err) {
     console.log(`❌ 保存 ${key} 数据到云端失败：`, err)
     showToast(`❌ 保存 ${key} 数据到云端失败：${err}`, 'error')
+    throw err
   }
 }
 
@@ -77,5 +78,6 @@ export async function removeCloudData(key, values) {
   } catch (err) {
     console.log(`❌ 移除云端 ${key} 数据失败：`, err)
     showToast(`❌ 移除云端 ${key} 数据失败：${err}`, 'error')
+    throw err
   }
 }
