@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.3.0](https://github.com/rmray/tamp-scripts/compare/tm-utils@1.2.0...tm-utils@1.3.0) (2026-02-14)
+
+
+### Features
+
+* **utils:** 新增消息提示方法、初始化公共CSS样式方法 ([c577ab7](https://github.com/rmray/tamp-scripts/commit/c577ab708745953ee2464e561b2ed6cff86146e6))
+
+
+
+
+
 # 1.2.0 (2026-02-11)
 
 

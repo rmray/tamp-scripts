@@ -24,6 +24,8 @@ importers:
         specifier: workspace:*
         version: link:packages/utils
 
+  packages/scripts/sehuatang-detail: {}
+
   packages/scripts/sehuatang-list: {}
 
   packages/utils: {}
