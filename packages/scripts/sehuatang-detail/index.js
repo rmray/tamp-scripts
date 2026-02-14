@@ -1,11 +1,22 @@
 import { api, createElement, getUrl, initGeneralStyle } from 'tm-utils'
 
 /** 全局变量 */
+
+// 网络请求数据
+let bookmarks = [] // 书签列表
+let bannedIdols = [] // Ban 列表
+let favoriteIdols = [] // Fav 列表
+
+// 通用变量
 const url = getUrl() // 获取URL：origin, pathname, search, searches
 const id = getId() // 获取帖子ID
+
+// 页面元素
 const paginationEl = document.getElementById('pgt') // 头部分页行
+
 // 书签功能
 let bookmarkBtn = null // 书签按钮
+
 // Ban/Fav 功能
 let idolNames = [] // 帖子中出现的女优名字列表
 let idolsInput = null // Ban/Fav 输入框
@@ -13,11 +24,6 @@ let banBtn = null // Ban 按钮
 let favBtn = null // Fav 按钮
 let unBanBtn = null // Unban 按钮
 let unFavBtn = null // Unfav 按钮
-
-// 网络请求数据
-let bookmarks = [] // 书签列表
-let bannedIdols = [] // Ban 列表
-let favoriteIdols = [] // Fav 列表
 
 export async function main(config) {
   // 1. 初始化配置
@@ -27,14 +33,16 @@ export async function main(config) {
   // 2. CSS 样式
   setStyle() // 设置 CSS 样式
 
-  // 3. 书签功能
+  // 3. 网络请求
   await fetchBookmarks() // 请求书签列表数据
+  await fetchBannedIdols() // 请求 Ban 列表数据
+  await fetchFavoriteIdols() // 请求 Fav 列表数据
+
+  // 4. 书签功能
   createBookmarkBtn() // 创建书签按钮
   bookmarkBtnClick() // 书签按钮点击事件
 
-  // 4. Ban/Fav 功能
-  await fetchBannedIdols() // 请求 Ban 列表数据
-  await fetchFavoriteIdols() // 请求 Fav 列表数据
+  // 5. Ban/Fav 功能
   await createBanFavForm() // 创建 Ban/Unban 和 Fav/Unfav 表单
   await initIdolStatus() // 初始化女优状态
   updateIdolStatus() // 更新女优状态
@@ -56,12 +64,26 @@ function setStyle() {
 
 // #endregion
 
-// #region 书签功能 -------------------------------------------------------
+// #region 网络请求 -------------------------------------------------------
 
 /** [功能] 获取书签列表 */
 async function fetchBookmarks() {
   bookmarks = await api.getCloudData('sehuatang/bookmarks')
 }
+
+/** [功能] 获取 Ban 列表 */
+async function fetchBannedIdols() {
+  bannedIdols = await api.getCloudData('sehuatang/bannedIdols')
+}
+
+/** [功能] 获取 Fav 列表 */
+async function fetchFavoriteIdols() {
+  favoriteIdols = await api.getCloudData('sehuatang/favoriteIdols')
+}
+
+// #endregion
+
+// #region 书签功能 -------------------------------------------------------
 
 /** [功能] 创建书签按钮 */
 function createBookmarkBtn() {
@@ -116,16 +138,6 @@ function bookmarkBtnClick() {
 
 // #region Ban/Fav 功能 -------------------------------------------------------
 
-/** [功能] 获取 Ban 列表 */
-async function fetchBannedIdols() {
-  bannedIdols = await api.getCloudData('sehuatang/bannedIdols')
-}
-
-/** [功能] 获取 Fav 列表 */
-async function fetchFavoriteIdols() {
-  favoriteIdols = await api.getCloudData('sehuatang/favoriteIdols')
-}
-
 /** [功能] 创建 Ban/Unban 和 Fav/Unfav 表单 */
 async function createBanFavForm() {
   // 1. 创建表单容器元素
@@ -162,8 +174,9 @@ async function initIdolStatus() {
   // 1. 获取页面中所有的女优名字元素
   const postMsgEl = document.querySelector('#postlist div[id^="post_"] td[id^="postmessage_"]')
   if (!postMsgEl) return
-  const match = postMsgEl.textContent.match(/出演者：\s*([^\n\r]+)/)
+  const match = postMsgEl.textContent.match(/(?:【出演女优】|出演者)[:：][ \t]*([^\n\r]*)/)
   // const match = postMsgEl.textContent.match(/出演者：(?:&nbsp;|\s)*(.*?)/)
+  console.log(postMsgEl.textContent)
   if (match && match[1]) {
     idolNames = match[1]
       .split(/&nbsp;|\s/)

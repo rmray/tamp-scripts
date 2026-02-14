@@ -161,9 +161,13 @@
   }
 
   /** 全局变量 */
+
+  // 网络请求
+  let bookmarks = []; // 书签列表
+  let bannedIdols = []; // Ban 列表
+  let favoriteIdols = []; // Fav 列表
+
   let listEls = []; // 目录列表元素
-  let bannedIdols = []; // 屏蔽的女优列表
-  let bookmarks = []; // 标记过的帖子ID列表
   let bannedEls = []; // 屏蔽的元素列表
 
   // #region 主方法 -------------------------------------------------------
@@ -173,33 +177,52 @@
     if (!config.BASE_API_URL) throw new Error('缺少配置项: BASE_API_URL')
     initConfig({ baseUrl: config.BASE_API_URL });
 
-    // 2. 过滤列表
+    // 2. 网络请求
+    await fetchBookmarks(); // 请求书签列表数据
+    await fetchBannedIdols(); // 请求 Ban 列表数据
+    await fetchFavoriteIdols(); // 请求 Fav 列表数据
+
+    // 3. 过滤列表
     listEls = getListEl(); // 获取目录列表
-    bannedIdols = await getBannedIdols(); // 获取屏蔽的女优列表
     listEls = filterBannedIdols(); // 过滤屏蔽女优，并隐藏列表
     listEls = filterSignStartWithNumber(); // 过滤数字开头的番号
     await highlightMarked(); // 高亮被标记过的链接
+    await hightlightFavorite(); // 高亮被标记为喜欢的链接
 
-    // 3. 批量打开链接
+    // 4. 批量打开链接
     createLink(); // 创建批量打开链接按钮
     batchOpenLink(); // 批量打开链接
   }
 
   // #endregion
 
+  // #region 网络请求 -------------------------------------------------------
+
+  /** [功能] 获取书签列表 */
+  async function fetchBookmarks() {
+    bookmarks = await getCloudData('sehuatang/bookmarks');
+  }
+
+  /** [功能] 获取 Ban 列表 */
+  async function fetchBannedIdols() {
+    bannedIdols = await getCloudData('sehuatang/bannedIdols');
+  }
+
+  /** [功能] 获取 Fav 列表 */
+  async function fetchFavoriteIdols() {
+    favoriteIdols = await getCloudData('sehuatang/favoriteIdols');
+  }
+
+  // #endregion
+
   // #region 过滤列表 -------------------------------------------------------
 
-  /** 获取目录列表元素 */
+  /** [功能] 获取目录列表元素 */
   function getListEl() {
     return Array.from(document.querySelectorAll('#threadlisttableid .xst'))
   }
 
-  /** 获取屏蔽的女优列表 */
-  async function getBannedIdols() {
-    return await getCloudData('sehuatang/bannedIdols')
-  }
-
-  /** 过滤目录列表元素：屏蔽黑名单女优，并隐藏列表 */
+  /** [功能] 过滤目录列表元素：屏蔽黑名单女优，并隐藏列表 */
   function filterBannedIdols() {
     return listEls.filter((el) => {
       const title = el.innerText;
@@ -212,7 +235,7 @@
     })
   }
 
-  /** 过滤数字开头的番号 */
+  /** [功能] 过滤数字开头的番号 */
   function filterSignStartWithNumber() {
     return listEls.filter((el) => {
       const title = el.innerText;
@@ -227,14 +250,22 @@
     })
   }
 
-  /** 高亮被标记过的链接 */
+  /** [功能] 高亮被标记过的链接 */
   async function highlightMarked() {
-    bookmarks = await getCloudData('sehuatang/bookmarks');
-
     listEls.forEach((el) => {
       const id = Number(el.href.split('-')[1]);
       const isMarked = bookmarks.includes(id);
-      if (isMarked) el.style.backgroundColor = '#d6f4c9';
+      if (isMarked) el.style.backgroundColor = '#f78b3e';
+    });
+  }
+
+  /** [功能] 高亮被标记为喜欢的链接 */
+  async function hightlightFavorite() {
+    listEls.forEach((el) => {
+      console.log(el.innerText);
+      const title = el.innerText;
+      const isFavorite = favoriteIdols.some((idol) => title.includes(idol));
+      if (isFavorite) el.style.backgroundColor = '#b5fab5';
     });
   }
 
