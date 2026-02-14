@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.5.0](https://github.com/rmray/tamp-scripts/compare/tm-sehuatang-list@1.4.0...tm-sehuatang-list@1.5.0) (2026-02-14)
+
+
+### Bug Fixes
+
+* **sehuatang-search:** 修复色花堂搜索的问题 ([18f4712](https://github.com/rmray/tamp-scripts/commit/18f4712082d8b520093bc25e5347453bfe887703))
+
+
+### Features
+
+* **sehuatang:** 全局倒计时-基本实现 ([c133d2b](https://github.com/rmray/tamp-scripts/commit/c133d2b697bd72b5a30e37034f99009e325a3bd4))
+
+
+
+
+
 # [1.4.0](https://github.com/rmray/tamp-scripts/compare/tm-sehuatang-list@1.3.0...tm-sehuatang-list@1.4.0) (2026-02-14)
 
 
