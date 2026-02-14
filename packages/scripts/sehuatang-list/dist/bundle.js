@@ -1,6 +1,75 @@
 (function (exports) {
   'use strict';
 
+  /** [功能] 设置公共 CSS 样式 */
+  function initGeneralStyle() {
+    GM_addStyle(`
+    .tm-toast {
+      position: fixed;
+      right: 20px;
+      padding: 12px 20px;
+      border-radius: 8px;
+      color: white;
+      font-size: 14px;
+      z-index: 100001;
+      transition: top 0.3s ease, opacity 0.3s ease;
+      animation: tm-slide-in 0.3s ease;
+    }
+    .tm-toast.success {
+      background: #10b981;
+    }
+    .tm-toast.error {
+      background: #ef4444;
+    }
+    .tm-toast.tm-toast-out {
+      animation: tm-slide-out 0.3s ease forwards;
+    }
+    @keyframes tm-slide-in {
+      from { opacity: 0; transform: translateX(100%); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes tm-slide-out {
+      from { opacity: 1; transform: translateX(0); }
+      to { opacity: 0; transform: translateX(100%); }
+    }
+  `);
+  }
+
+  /** [功能] 消息提示（支持多条堆叠） */
+  const _toastList = [];
+  const TOAST_GAP = 10; // toast 之间的间距
+  const TOAST_TOP = 20; // 第一个 toast 距顶部的距离
+
+  function _updateToastPositions() {
+    let currentTop = TOAST_TOP;
+    for (const t of _toastList) {
+      t.style.top = currentTop + 'px';
+      currentTop += t.offsetHeight + TOAST_GAP;
+    }
+  }
+
+  function _removeToast(toast) {
+    toast.classList.add('tm-toast-out');
+    toast.addEventListener('animationend', () => {
+      const idx = _toastList.indexOf(toast);
+      if (idx > -1) _toastList.splice(idx, 1);
+      toast.remove();
+      _updateToastPositions();
+    }, { once: true });
+  }
+
+  function showToast(message, type = 'success') {
+    const toast = document.createElement('div');
+    toast.className = `tm-toast ${type}`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+
+    _toastList.push(toast);
+    _updateToastPositions();
+
+    setTimeout(() => _removeToast(toast), 3000);
+  }
+
   /** [功能] 创建元素 */
   function createElement(option) {
     const { type = 'div', text = '', css = '', cNames = [], attrs = [], value = '' } = option;
@@ -27,13 +96,19 @@
         data: options.body || null,
         // 模拟 fetch 的 response 对象
         onload: (res) => {
+          console.log('gm-res: ', res);
           if (res.status >= 200 && res.status < 300) {
-            resolve({
-              ok: true,
-              status: res.status,
-              json: () => Promise.resolve(JSON.parse(res.responseText)),
-              text: () => Promise.resolve(res.responseText)
-            });
+            const resJson = res.responseText ? JSON.parse(res.responseText) : null;
+            if (!resJson.success) {
+              reject(new Error(`Custom Error: ${res.status} ${resJson.error || res.response}`));
+            } else {
+              resolve({
+                ok: true,
+                status: res.status,
+                json: () => Promise.resolve(JSON.parse(res.responseText)),
+                text: () => Promise.resolve(res.responseText)
+              });
+            }
           } else {
             reject(new Error(`HTTP Error: ${res.status} ${res.statusText}`));
           }
@@ -57,6 +132,7 @@
   /** [功能] 初始化配置 */
   function initConfig(config) {
     _config = { ..._config, ...config };
+    initGeneralStyle(); // 初始化通用样式
   }
 
   /** [功能] 从云端获取数据 */
@@ -66,12 +142,16 @@
 
     // 2. 发送请求获取数据
     try {
-      console.log('API: ', `${_config.baseUrl}?key=${key}`);
-      const response = await gmFetch(`${_config.baseUrl}?key=${key}`);
-      const responseJson = await response.json();
-      return JSON.parse(responseJson.value)
+      // console.log('API: ', `${_config.baseUrl}?key=${key}`)
+      const responseJson = await gmFetch(`${_config.baseUrl}?key=${key}`).then((res) => res.json());
+
+      // 3. 处理响应结果
+      if (!responseJson.success) throw new Error(responseJson.error || '未知错误')
+      showToast(`✅ 获取云端 ${key} 数据成功`, 'success');
+      return responseJson.data
     } catch (err) {
-      console.error('❌ 获取云端数据失败：', err);
+      console.log(`❌ 获取云端 ${key} 数据失败：`, err);
+      showToast(`❌ 获取云端 ${key} 数据失败`, 'error');
       return []
     }
   }
@@ -148,7 +228,7 @@
     bookmarks = await getCloudData('sehuatang/bookmarks');
 
     listEls.forEach((el) => {
-      const id = el.href.split('-')[1];
+      const id = Number(el.href.split('-')[1]);
       const isMarked = bookmarks.includes(id);
       if (isMarked) el.style.backgroundColor = '#d6f4c9';
     });
@@ -193,9 +273,9 @@
     });
 
     // 2. 插入按钮
-    paginationEl.appendChild(frontEl);
-    paginationEl.appendChild(rearEl);
-    paginationEl.appendChild(countEl);
+    paginationEl?.appendChild(frontEl);
+    paginationEl?.appendChild(rearEl);
+    paginationEl?.appendChild(countEl);
   }
 
   /** 批量打开链接 */

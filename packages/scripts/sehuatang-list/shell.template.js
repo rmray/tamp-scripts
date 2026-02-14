@@ -6,21 +6,29 @@
 // @author       You
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=dmn12.vip
 
+// @match        https://7m53.caas1.net/forum-*.html
+// @match        https://7m53.caas1.net/forum.php?mod=forumdisplay&fid=*
 // @match        https://dmn12.vip/forum-*.html
 // @match        https://dmn12.vip/forum.php?mod=forumdisplay&fid=*
 
-// @require      https://cdn.jsdelivr.net/gh/rmray/tamp-scripts@tamp/sehuatang-thread-list@1.1.0/packages/scripts/sehuatang-thread-list/dist/bundle.js
+// @require      file://D:/Code/Project/Tampermonkey/tamp-scripts/packages/scripts/sehuatang-list/dist/bundle.js
+// @icon      https://cdn.jsdelivr.net/gh/rmray/tamp-scripts@tm-sehuatang-list@1.1.1/packages/scripts/sehuatang-list/dist/bundle.js
 // @run-at       document-end
-// @connect      【填入你的 API 域名】  // 例如：cdn.example.com
+// @connect      127.0.0.1
+// @connect      【远程域名】
 // @grant        GM_xmlhttpRequest
+// @grant        GM_addStyle
 // ==/UserScript==
 
-(function() {
-    'use strict';
-    const CONFIG = {
-        BASE_API_URL: '【填入你的 API 域名】/api/data' // 例如：https://cdn.example.com/api/data
-    }
+/* global MrSehuatangList */
 
-    MrSehuatangThreadList.main(CONFIG)
-    
-})();
+;(function () {
+  'use strict'
+
+  const CONFIG = {
+    BASE_API_URL: 'http://127.0.0.1:8788/api/data'
+    // BASE_API_URL: 'https://【远程域名】/api/data'
+  }
+
+  MrSehuatangList.main(CONFIG)
+})()

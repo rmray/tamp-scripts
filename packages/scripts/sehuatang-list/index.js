@@ -72,7 +72,7 @@ async function highlightMarked() {
   bookmarks = await api.getCloudData('sehuatang/bookmarks')
 
   listEls.forEach((el) => {
-    const id = el.href.split('-')[1]
+    const id = Number(el.href.split('-')[1])
     const isMarked = bookmarks.includes(id)
     if (isMarked) el.style.backgroundColor = '#d6f4c9'
   })
@@ -117,9 +117,9 @@ function createLink() {
   })
 
   // 2. 插入按钮
-  paginationEl.appendChild(frontEl)
-  paginationEl.appendChild(rearEl)
-  paginationEl.appendChild(countEl)
+  paginationEl?.appendChild(frontEl)
+  paginationEl?.appendChild(rearEl)
+  paginationEl?.appendChild(countEl)
 }
 
 /** 批量打开链接 */
