@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.4.0](https://github.com/rmray/tamp-scripts/compare/tm-utils@1.3.0...tm-utils@1.4.0) (2026-02-14)
+
+
+### Features
+
+* **sehuatang-detail:** 优化 Ban / Fav 女优功能 ([d73d7cb](https://github.com/rmray/tamp-scripts/commit/d73d7cbf8ea33e8a1502d4e01fb8a2862f9fb754))
+
+
+
+
+
 # [1.3.0](https://github.com/rmray/tamp-scripts/compare/tm-utils@1.2.0...tm-utils@1.3.0) (2026-02-14)
 
 
