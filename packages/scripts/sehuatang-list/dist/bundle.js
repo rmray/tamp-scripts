@@ -96,7 +96,7 @@
         data: options.body || null,
         // 模拟 fetch 的 response 对象
         onload: (res) => {
-          console.log('gm-res: ', res);
+          // console.log('gm-res: ', res)
           if (res.status >= 200 && res.status < 300) {
             const resJson = res.responseText ? JSON.parse(res.responseText) : null;
             if (!resJson.success) {

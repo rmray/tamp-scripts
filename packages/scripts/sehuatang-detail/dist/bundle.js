@@ -106,7 +106,7 @@
         data: options.body || null,
         // 模拟 fetch 的 response 对象
         onload: (res) => {
-          console.log('gm-res: ', res);
+          // console.log('gm-res: ', res)
           if (res.status >= 200 && res.status < 300) {
             const resJson = res.responseText ? JSON.parse(res.responseText) : null;
             if (!resJson.success) {
@@ -179,11 +179,11 @@
         body: JSON.stringify({ key, values })
       }).then((res) => res.json());
 
-      console.log('responseJson: ', responseJson);
+      // console.log('responseJson: ', responseJson)
 
       // 3. 处理响应结果
       if (!responseJson.success) throw new Error(responseJson.error || '未知错误')
-      console.log(`✅ 保存 ${key} 数据到云端成功`);
+      // console.log(`✅ 保存 ${key} 数据到云端成功`)
       showToast(`✅ 保存 ${key} 数据到云端成功`, 'success');
     } catch (err) {
       console.log(`❌ 保存 ${key} 数据到云端失败：`, err);
@@ -206,7 +206,7 @@
 
       // 3. 处理响应结果
       if (!responseJson.success) throw new Error(responseJson.error || '未知错误')
-      console.log(`✅ 移除云端 ${key} 数据成功`);
+      // console.log(`✅ 移除云端 ${key} 数据成功`)
       showToast(`✅ 移除云端 ${key} 数据成功`, 'success');
     } catch (err) {
       console.log(`❌ 移除云端 ${key} 数据失败：`, err);
