@@ -130,34 +130,6 @@
 
   // #endregion
 
-  /** 去除广告 */
-  function removeAd() {
-    const adSelectors = ['.show-text', '.show-text2', '.show-text4'];
-    adSelectors.forEach((selector) => {
-      const elements = document.querySelectorAll(selector);
-      elements.forEach((el) => el.remove());
-    });
-  }
-
-  // #region 网络请求 -------------------------------------------------------
-
-  /** [功能] 获取书签列表 */
-  async function fetchBookmarks() {
-    return getCloudData('sehuatang/bookmarks')
-  }
-
-  /** [功能] 获取 Ban 列表 */
-  async function fetchBannedIdols() {
-    return getCloudData('sehuatang/bannedIdols')
-  }
-
-  /** [功能] 获取 Fav 列表 */
-  async function fetchFavoriteIdols() {
-    return getCloudData('sehuatang/favoriteIdols')
-  }
-
-  // #endregion
-
   let _config = {
     baseUrl: null
   };
@@ -188,6 +160,34 @@
       return []
     }
   }
+
+  /** 去除广告 */
+  function removeAd() {
+    const adSelectors = ['.show-text', '.show-text2', '.show-text4'];
+    adSelectors.forEach((selector) => {
+      const elements = document.querySelectorAll(selector);
+      elements.forEach((el) => el.remove());
+    });
+  }
+
+  // #region 网络请求 -------------------------------------------------------
+
+  /** [功能] 获取书签列表 */
+  async function fetchBookmarks() {
+    return getCloudData('sehuatang/bookmarks')
+  }
+
+  /** [功能] 获取 Ban 列表 */
+  async function fetchBannedIdols() {
+    return getCloudData('sehuatang/bannedIdols')
+  }
+
+  /** [功能] 获取 Fav 列表 */
+  async function fetchFavoriteIdols() {
+    return getCloudData('sehuatang/favoriteIdols')
+  }
+
+  // #endregion
 
   /** 全局变量 */
 

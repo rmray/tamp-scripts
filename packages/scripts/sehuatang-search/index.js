@@ -1,5 +1,9 @@
 import { api, removeAd, getUrl } from 'tm-utils'
 
+/** 常量（与全局脚本 sehuatang/index.js 共享） */
+const COOLDOWN_DURATION = 30 * 1000 // 冷却时间 30 秒（毫秒）
+const STORAGE_KEY = 'search_cooldown_endtime' // localStorage Key
+
 /** 全局变量 */
 const filterSections = ['求片问答悬赏区', 'AI专区'] // 需要过滤掉的板块
 let searchResultEls = [] // 搜索结果元素列表
@@ -20,9 +24,6 @@ export async function main(config = {}) {
   searchResultEls = getSearchResult() // 获取搜索结果元素列表
   filterUselessSearchResult() // 过滤无效的搜索结果
   heightSpecialResult() // 高亮破解和无码帖子
-
-  // 4. 倒计时
-  startCountdown() // 启动30秒倒计时
 }
 
 // #endregion
@@ -41,6 +42,13 @@ function execSearch() {
 
   const keyword = url.searches.kw
   if (!keyword) return
+
+  // 检查冷却状态：如果还在冷却中，则不执行搜索
+  const endTime = localStorage.getItem(STORAGE_KEY)
+  if (endTime && Number(endTime) > Date.now()) return
+
+  // 写入新的冷却结束时间
+  localStorage.setItem(STORAGE_KEY, String(Date.now() + COOLDOWN_DURATION))
 
   searchInputEl.value = keyword // 将 URL 参数中的关键词填入搜索输入框
   searchBtnEl.click() // 点击搜索按钮
@@ -72,44 +80,6 @@ function heightSpecialResult() {
       item.style.backgroundColor = '#ffeebe'
     }
   })
-}
-
-// #endregion
-
-// #region 倒计时 -------------------------------------------------------
-
-/** 启动30秒倒计时 */
-function startCountdown() {
-  // 创建倒计时元素
-  const countdownEl = document.createElement('div')
-  countdownEl.id = 'se98-countdown'
-  countdownEl.style.cssText = `
-    position: fixed;
-    top: 30px;
-    right: 10px;
-    background: linear-gradient(135deg, #afea66 0%, #f3c949 100%);
-    color: white;
-    padding: 5px 8px;
-    border-radius: 50%;
-    font-size: 16px;
-    font-weight: bold;
-    z-index: 99999;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-    font-family: Arial, sans-serif;
-  `
-  document.body.appendChild(countdownEl)
-
-  let seconds = 30
-  countdownEl.textContent = `${seconds}`
-
-  const timer = setInterval(() => {
-    seconds--
-    countdownEl.textContent = `${seconds}`
-
-    if (seconds <= 0) {
-      clearInterval(timer)
-    }
-  }, 1000)
 }
 
 // #endregion

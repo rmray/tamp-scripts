@@ -1,4 +1,4 @@
-import { api } from '..'
+import * as api from './api'
 import { createElement } from './dom'
 
 /** 去除广告 */

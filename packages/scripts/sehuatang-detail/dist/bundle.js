@@ -140,6 +140,87 @@
 
   // #endregion
 
+  let _config = {
+    baseUrl: null
+  };
+
+  /** [功能] 初始化配置 */
+  function initConfig(config) {
+    _config = { ..._config, ...config };
+    initGeneralStyle(); // 初始化通用样式
+  }
+
+  /** [功能] 从云端获取数据 */
+  async function getCloudData(key) {
+    // 1. 检查 baseUrl 是否已配置
+    if (!_config.baseUrl) throw new Error('❌ 请先调用 initConfig() 初始化配置')
+
+    // 2. 发送请求获取数据
+    try {
+      // console.log('API: ', `${_config.baseUrl}?key=${key}`)
+      const responseJson = await gmFetch(`${_config.baseUrl}?key=${key}`).then((res) => res.json());
+
+      // 3. 处理响应结果
+      if (!responseJson.success) throw new Error(responseJson.error || '未知错误')
+      showToast(`✅ 获取云端 ${key} 数据成功`, 'success');
+      return responseJson.data
+    } catch (err) {
+      console.log(`❌ 获取云端 ${key} 数据失败：`, err);
+      showToast(`❌ 获取云端 ${key} 数据失败`, 'error');
+      return []
+    }
+  }
+
+  /** [功能] 保存/更新数据到云端 */
+  async function setCloudData(key, values) {
+    // 1. 检查 baseUrl 是否已配置
+    if (!_config.baseUrl) throw new Error('❌ 请先调用 initConfig() 初始化配置')
+
+    // 2. 发送请求保存数据
+    try {
+      const responseJson = await gmFetch(_config.baseUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key, values })
+      }).then((res) => res.json());
+
+      // console.log('responseJson: ', responseJson)
+
+      // 3. 处理响应结果
+      if (!responseJson.success) throw new Error(responseJson.error || '未知错误')
+      // console.log(`✅ 保存 ${key} 数据到云端成功`)
+      showToast(`✅ 保存 ${key} 数据到云端成功`, 'success');
+    } catch (err) {
+      console.log(`❌ 保存 ${key} 数据到云端失败：`, err);
+      showToast(`❌ 保存 ${key} 数据到云端失败：${err}`, 'error');
+      throw err
+    }
+  }
+
+  /** [功能] 移除云端指定数据 */
+  async function removeCloudData(key, values) {
+    // 1. 检查 baseUrl 是否已配置
+    if (!_config.baseUrl) throw new Error('❌ 请先调用 initConfig() 初始化配置')
+
+    // 2. 发送请求移除数据
+    try {
+      const responseJson = await gmFetch(_config.baseUrl, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key, values })
+      }).then((res) => res.json());
+
+      // 3. 处理响应结果
+      if (!responseJson.success) throw new Error(responseJson.error || '未知错误')
+      // console.log(`✅ 移除云端 ${key} 数据成功`)
+      showToast(`✅ 移除云端 ${key} 数据成功`, 'success');
+    } catch (err) {
+      console.log(`❌ 移除云端 ${key} 数据失败：`, err);
+      showToast(`❌ 移除云端 ${key} 数据失败：${err}`, 'error');
+      throw err
+    }
+  }
+
   /** 去除广告 */
   function removeAd() {
     const adSelectors = ['.show-text', '.show-text2', '.show-text4'];
@@ -267,87 +348,6 @@
   }
 
   // #endregion
-
-  let _config = {
-    baseUrl: null
-  };
-
-  /** [功能] 初始化配置 */
-  function initConfig(config) {
-    _config = { ..._config, ...config };
-    initGeneralStyle(); // 初始化通用样式
-  }
-
-  /** [功能] 从云端获取数据 */
-  async function getCloudData(key) {
-    // 1. 检查 baseUrl 是否已配置
-    if (!_config.baseUrl) throw new Error('❌ 请先调用 initConfig() 初始化配置')
-
-    // 2. 发送请求获取数据
-    try {
-      // console.log('API: ', `${_config.baseUrl}?key=${key}`)
-      const responseJson = await gmFetch(`${_config.baseUrl}?key=${key}`).then((res) => res.json());
-
-      // 3. 处理响应结果
-      if (!responseJson.success) throw new Error(responseJson.error || '未知错误')
-      showToast(`✅ 获取云端 ${key} 数据成功`, 'success');
-      return responseJson.data
-    } catch (err) {
-      console.log(`❌ 获取云端 ${key} 数据失败：`, err);
-      showToast(`❌ 获取云端 ${key} 数据失败`, 'error');
-      return []
-    }
-  }
-
-  /** [功能] 保存/更新数据到云端 */
-  async function setCloudData(key, values) {
-    // 1. 检查 baseUrl 是否已配置
-    if (!_config.baseUrl) throw new Error('❌ 请先调用 initConfig() 初始化配置')
-
-    // 2. 发送请求保存数据
-    try {
-      const responseJson = await gmFetch(_config.baseUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ key, values })
-      }).then((res) => res.json());
-
-      // console.log('responseJson: ', responseJson)
-
-      // 3. 处理响应结果
-      if (!responseJson.success) throw new Error(responseJson.error || '未知错误')
-      // console.log(`✅ 保存 ${key} 数据到云端成功`)
-      showToast(`✅ 保存 ${key} 数据到云端成功`, 'success');
-    } catch (err) {
-      console.log(`❌ 保存 ${key} 数据到云端失败：`, err);
-      showToast(`❌ 保存 ${key} 数据到云端失败：${err}`, 'error');
-      throw err
-    }
-  }
-
-  /** [功能] 移除云端指定数据 */
-  async function removeCloudData(key, values) {
-    // 1. 检查 baseUrl 是否已配置
-    if (!_config.baseUrl) throw new Error('❌ 请先调用 initConfig() 初始化配置')
-
-    // 2. 发送请求移除数据
-    try {
-      const responseJson = await gmFetch(_config.baseUrl, {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ key, values })
-      }).then((res) => res.json());
-
-      // 3. 处理响应结果
-      if (!responseJson.success) throw new Error(responseJson.error || '未知错误')
-      // console.log(`✅ 移除云端 ${key} 数据成功`)
-      showToast(`✅ 移除云端 ${key} 数据成功`, 'success');
-    } catch (err) {
-      console.log(`❌ 移除云端 ${key} 数据失败：`, err);
-      showToast(`❌ 移除云端 ${key} 数据失败：${err}`, 'error');
-      throw err
-    }
-  }
 
   /** 全局变量 */
 
