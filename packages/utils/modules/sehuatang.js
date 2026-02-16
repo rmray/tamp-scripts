@@ -119,17 +119,19 @@ export async function createPageBtns(options = {}) {
 
 /** [功能] 获取书签列表 */
 export async function fetchBookmarks() {
-  return api.getCloudData('sehuatang/bookmarks')
+  return api.getCloudDataSWR('sehuatang/bookmarks', api.getCloudData)
+
+  // return api.getCloudData('sehuatang/bookmarks')
 }
 
 /** [功能] 获取 Ban 列表 */
 export async function fetchBannedIdols() {
-  return api.getCloudData('sehuatang/bannedIdols')
+  return api.getCloudDataSWR('sehuatang/bannedIdols', api.getCloudData)
 }
 
 /** [功能] 获取 Fav 列表 */
 export async function fetchFavoriteIdols() {
-  return api.getCloudData('sehuatang/favoriteIdols')
+  return api.getCloudDataSWR('sehuatang/favoriteIdols', api.getCloudData)
 }
 
 // #endregion

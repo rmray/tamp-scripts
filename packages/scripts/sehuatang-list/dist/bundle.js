@@ -133,6 +133,8 @@
   let _config = {
     baseUrl: null
   };
+  const SWR_PREFIX = 'swr_cache_';
+  const SWR_DELAY = 4000;
 
   /** [功能] 初始化配置 */
   function initConfig(config) {
@@ -152,12 +154,58 @@
 
       // 3. 处理响应结果
       if (!responseJson.success) throw new Error(responseJson.error || '未知错误')
-      showToast(`✅ 获取云端 ${key} 数据成功`, 'success');
+      // showToast(`✅ 获取云端 ${key} 数据成功`, 'success')
       return responseJson.data
     } catch (err) {
       console.log(`❌ 获取云端 ${key} 数据失败：`, err);
       showToast(`❌ 获取云端 ${key} 数据失败`, 'error');
       return []
+    }
+  }
+
+  /** [功能] 从云端获取数据（本次缓存SWR） */
+  async function getCloudDataSWR(key, fetchFn, renderFn = null) {
+    const storageKey = SWR_PREFIX + key;
+
+    // 1. 先尝试从缓存中获取数据
+    const oldDataRaw = localStorage.getItem(storageKey); // 原始数据
+
+    if (oldDataRaw) {
+      // 立即设置定时器，延迟从云端获取最新数据并保存
+      setTimeout(_execBackgroundSync, SWR_DELAY);
+
+      // 2. 有缓存
+      // 尝试解析获取到的原始数据并返回
+      try {
+        return JSON.parse(oldDataRaw).data
+      } catch (err) {
+        console.log('❌ 从缓存中获取数据失败：', err);
+        showToast('❌ 从缓存中获取数据失败', 'error');
+        // 解析失败，降级为网络请求，走下面的无缓存逻辑
+      }
+    }
+
+    // 3. 没有缓存
+    // 重新从云端请求数据
+    const data = await fetchFn(key);
+    // 保存请求到的数据
+    localStorage.setItem(storageKey, JSON.stringify({ data, timestamp: Date.now() }));
+    // 返回数据
+    return data
+
+    /** 4. 内部方法：后台执行网络请求并保存（可以访问私有变量） */
+    async function _execBackgroundSync() {
+      console.log('4秒后请求云端数据', key);
+      // 重新从云端请求数据
+      const newData = await fetchFn(key);
+
+      // 保存新数据
+      localStorage.setItem(storageKey, JSON.stringify({ data: newData, timestamp: Date.now() }));
+
+      // 对比新旧数据，决定是否更新页面
+      if (oldDataRaw !== JSON.stringify(newData)) {
+        renderFn && renderFn(newData);
+      }
     }
   }
 
@@ -174,17 +222,19 @@
 
   /** [功能] 获取书签列表 */
   async function fetchBookmarks() {
-    return getCloudData('sehuatang/bookmarks')
+    return getCloudDataSWR('sehuatang/bookmarks', getCloudData)
+
+    // return api.getCloudData('sehuatang/bookmarks')
   }
 
   /** [功能] 获取 Ban 列表 */
   async function fetchBannedIdols() {
-    return getCloudData('sehuatang/bannedIdols')
+    return getCloudDataSWR('sehuatang/bannedIdols', getCloudData)
   }
 
   /** [功能] 获取 Fav 列表 */
   async function fetchFavoriteIdols() {
-    return getCloudData('sehuatang/favoriteIdols')
+    return getCloudDataSWR('sehuatang/favoriteIdols', getCloudData)
   }
 
   // #endregion
