@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.7.0](https://github.com/rmray/tamp-scripts/compare/tm-sehuatang-list@1.6.0...tm-sehuatang-list@1.7.0) (2026-02-16)
+
+
+### Features
+
+* **sehuatang-list:** 过滤综合讨论区列表 ([309662c](https://github.com/rmray/tamp-scripts/commit/309662c62c39893b9589f44006ed62f154fdaa9a))
+
+
+
+
+
 # [1.6.0](https://github.com/rmray/tamp-scripts/compare/tm-sehuatang-list@1.5.0...tm-sehuatang-list@1.6.0) (2026-02-16)
 
 
