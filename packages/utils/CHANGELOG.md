@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.8.0](https://github.com/rmray/tamp-scripts/compare/tm-utils@1.7.0...tm-utils@1.8.0) (2026-02-16)
+
+
+### Features
+
+* **sehuatang:** 为网络请求添加 SWR 功能 ([a0edcc9](https://github.com/rmray/tamp-scripts/commit/a0edcc9e2d8dbf23250921692089e8d3e79a1703))
+
+
+
+
+
 # [1.7.0](https://github.com/rmray/tamp-scripts/compare/tm-utils@1.6.0...tm-utils@1.7.0) (2026-02-14)
 
 
