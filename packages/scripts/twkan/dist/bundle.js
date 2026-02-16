@@ -276,7 +276,7 @@
   /** 下载按钮 */
   function downloadBtn() {
     const fixedEl = document.querySelector('.baseScroll');
-    const btnEl = MrUtils.createElement({ text: '下载', cNames: ['btn'] });
+    const btnEl = createElement({ text: '下载', cNames: ['btn'] });
     fixedEl.prepend(btnEl);
 
     // 标记已下载
@@ -360,7 +360,7 @@
   function clearBtn() {
     const fixedEl = document.querySelector('.baseScroll');
 
-    const btnEl = MrUtils.createElement({ text: '清空', cNames: ['btn'] });
+    const btnEl = createElement({ text: '清空', cNames: ['btn'] });
 
     fixedEl.append(btnEl);
 
