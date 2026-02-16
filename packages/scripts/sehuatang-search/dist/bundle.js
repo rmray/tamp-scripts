@@ -36,7 +36,7 @@
   }
 
   /** 获取URL */
-  function getUrl() {
+  function getUrl(url = '') {
     const origin = window.location.origin; // https://fxc5.5qm5s.net
     const pathname = window.location.pathname; // /forum.php
     const search = window.location.search; // ?mod=forumdisplay&fid=37&page=100

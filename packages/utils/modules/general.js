@@ -33,8 +33,8 @@ export function initGeneralStyle() {
 }
 
 /** 获取URL */
-export function getUrl() {
-  const href = window.location.href // https://fxc5.5qm5s.net/forum.php?mod=forumdisplay&fid=37&page=100
+export function getUrl(url = '') {
+  const href = url || window.location.href // https://fxc5.5qm5s.net/forum.php?mod=forumdisplay&fid=37&page=100
   const origin = window.location.origin // https://fxc5.5qm5s.net
   const pathname = window.location.pathname // /forum.php
   const search = window.location.search // ?mod=forumdisplay&fid=37&page=100

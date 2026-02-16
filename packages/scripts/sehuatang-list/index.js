@@ -1,4 +1,4 @@
-import { createElement, api, removeAd, fetchBookmarks, fetchBannedIdols, fetchFavoriteIdols } from 'tm-utils'
+import { createElement, api, removeAd, fetchBookmarks, fetchBannedIdols, fetchFavoriteIdols, getUrl } from 'tm-utils'
 
 /** 全局变量 */
 
@@ -7,8 +7,10 @@ let bookmarks = [] // 书签列表
 let bannedIdols = [] // Ban 列表
 let favoriteIdols = [] // Fav 列表
 
+// 过滤列表
 let listEls = [] // 目录列表元素
 let bannedEls = [] // 屏蔽的元素列表
+let normalThreadListEls = null // 正常目录列表元素
 
 // #region 主方法 -------------------------------------------------------
 
@@ -29,6 +31,7 @@ export async function main(config = {}) {
   listEls = filterSignStartWithNumber() // 过滤数字开头的番号
   await highlightMarked() // 高亮被标记过的链接
   await hightlightFavorite() // 高亮被标记为喜欢的链接
+  filterNormalThreadList() // 过滤目录列表中的[情色分享]列
 
   // 4. 批量打开链接
   createLink() // 创建批量打开链接按钮
@@ -74,8 +77,10 @@ function filterSignStartWithNumber() {
 
 /** [功能] 高亮被标记过的链接 */
 async function highlightMarked() {
+  // console.log('listEls: ', listEls)
   listEls.forEach((el) => {
-    const id = Number(el.href.split('-')[1])
+    if (!el.href) return
+    const id = el.href?.includes('forum.php') ? Number(getUrl(el.href).searches.tid) : Number(el.href.split('-')[1])
     const isMarked = bookmarks.includes(id)
     if (isMarked) el.style.backgroundColor = '#f78b3e'
   })
@@ -88,6 +93,19 @@ async function hightlightFavorite() {
     const title = el.innerText
     const isFavorite = favoriteIdols.some((idol) => title.includes(idol))
     if (isFavorite) el.style.backgroundColor = '#b5fab5'
+  })
+}
+
+/** [功能] 过滤目录列表中的[情色分享]列 */
+function filterNormalThreadList() {
+  normalThreadListEls = document.querySelectorAll('#threadlisttableid tbody[id^="normalthread_"]')
+
+  normalThreadListEls?.forEach((el) => {
+    const typeEl = el.querySelector('.common em a') ? el.querySelector('.common em a') : el.querySelector('.new em a')
+    const typeText = typeEl?.innerText
+    if (typeText?.includes('情色分享')) {
+      el.style.display = 'none'
+    }
   })
 }
 
