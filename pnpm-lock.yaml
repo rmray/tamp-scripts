@@ -32,6 +32,8 @@ importers:
 
   packages/scripts/sehuatang-search: {}
 
+  packages/scripts/twkan-bookcase: {}
+
   packages/utils: {}
 
 packages:
