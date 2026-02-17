@@ -28,6 +28,8 @@ importers:
 
   packages/scripts/hentai: {}
 
+  packages/scripts/one: {}
+
   packages/scripts/sehuatang: {}
 
   packages/scripts/sehuatang-detail: {}
