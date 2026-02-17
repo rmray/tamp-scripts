@@ -110,6 +110,344 @@
         if (chatHistoryEl) setChatHistroyStyle();
       }
     });
+
+    // #region Markdown 格式化 -------------------------------------------------------
+
+    // API 配置
+    const API_URL = 'https://tool.mrer.top/api/format';
+
+    // 注入样式
+    function injectStyles() {
+      const styleEl = document.createElement('style');
+      styleEl.textContent = `
+    .fm-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 99999;
+      padding: 12px 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+      transition: all 0.3s ease;
+    }
+    .fm-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+    }
+    .fm-btn:active {
+      transform: translateY(0);
+    }
+    .fm-btn.loading {
+      opacity: 0.7;
+      cursor: wait;
+    }
+
+    .fm-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100000;
+    }
+    .fm-modal-content {
+      background: white;
+      padding: 24px;
+      border-radius: 12px;
+      min-width: 300px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    }
+    .fm-modal-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: #333;
+    }
+    .fm-modal-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+    .fm-option {
+      padding: 8px 16px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      background: white;
+      font-size: 14px;
+    }
+    .fm-option:hover {
+      border-color: #667eea;
+      background: #f5f7ff;
+    }
+    .fm-option.selected {
+      border-color: #667eea;
+      background: #667eea;
+      color: white;
+    }
+    .fm-modal-buttons {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+    }
+    .fm-modal-btn {
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+    .fm-modal-btn.cancel {
+      background: #f0f0f0;
+      border: none;
+      color: #666;
+    }
+    .fm-modal-btn.cancel:hover {
+      background: #e0e0e0;
+    }
+    .fm-modal-btn.confirm {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+      color: white;
+    }
+    .fm-modal-btn.confirm:hover {
+      opacity: 0.9;
+    }
+
+    .fm-toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 12px 20px;
+      border-radius: 8px;
+      color: white;
+      font-size: 14px;
+      z-index: 100001;
+      animation: fm-slide-in 0.3s ease;
+    }
+    .fm-toast.success {
+      background: #10b981;
+    }
+    .fm-toast.error {
+      background: #ef4444;
+    }
+    @keyframes fm-slide-in {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+  `;
+      document.head.appendChild(styleEl);
+    }
+
+    // 显示提示
+    function showToast(message, type = 'success') {
+      const toast = document.createElement('div');
+      toast.className = `fm-toast ${type}`;
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
+
+    // 显示选项弹窗
+    function showOptionsModal() {
+      return new Promise((resolve) => {
+        const modal = document.createElement('div');
+        modal.className = 'fm-modal';
+
+        let selectedTop = 'H2';
+
+        // 创建模态框内容容器
+        const modalContent = document.createElement('div');
+        modalContent.className = 'fm-modal-content';
+
+        // 创建标题
+        const title = document.createElement('div');
+        title.className = 'fm-modal-title';
+        title.textContent = '选择顶级标题级别';
+        modalContent.appendChild(title);
+
+        // 创建选项容器
+        const optionsContainer = document.createElement('div');
+        optionsContainer.className = 'fm-modal-options'
+
+        // 创建选项按钮
+        ;['H1', 'H2', 'H3', 'H4', 'H5', 'H6'].forEach((h) => {
+          const option = document.createElement('div');
+          option.className = `fm-option ${h === 'H2' ? 'selected' : ''}`;
+          option.dataset.value = h;
+          option.textContent = h;
+
+          option.addEventListener('click', () => {
+            optionsContainer.querySelectorAll('.fm-option').forEach((o) => o.classList.remove('selected'));
+            option.classList.add('selected');
+            selectedTop = option.dataset.value;
+          });
+
+          optionsContainer.appendChild(option);
+        });
+
+        modalContent.appendChild(optionsContainer);
+
+        // 创建按钮容器
+        const buttonsContainer = document.createElement('div');
+        buttonsContainer.className = 'fm-modal-buttons';
+
+        // 取消按钮
+        const cancelBtn = document.createElement('button');
+        cancelBtn.className = 'fm-modal-btn cancel';
+        cancelBtn.textContent = '取消';
+        cancelBtn.addEventListener('click', () => {
+          modal.remove();
+          resolve(null);
+        });
+
+        // 确认按钮
+        const confirmBtn = document.createElement('button');
+        confirmBtn.className = 'fm-modal-btn confirm';
+        confirmBtn.textContent = '确认';
+        confirmBtn.addEventListener('click', () => {
+          modal.remove();
+          resolve(selectedTop);
+        });
+
+        buttonsContainer.appendChild(cancelBtn);
+        buttonsContainer.appendChild(confirmBtn);
+        modalContent.appendChild(buttonsContainer);
+
+        modal.appendChild(modalContent);
+
+        // 点击背景关闭
+        modal.addEventListener('click', (e) => {
+          if (e.target === modal) {
+            modal.remove();
+            resolve(null);
+          }
+        });
+
+        document.body.appendChild(modal);
+      })
+    }
+
+    // 读取剪切板
+    async function readClipboard() {
+      try {
+        return await navigator.clipboard.readText()
+      } catch (err) {
+        showToast('无法读取剪切板，请授予权限', 'error');
+        return null
+      }
+    }
+
+    // 发送格式化请求
+    function formatContent(content, top) {
+      return new Promise((resolve, reject) => {
+        GM_xmlhttpRequest({
+          method: 'POST',
+          url: API_URL,
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          data: JSON.stringify({ content, top }),
+          onload: (response) => {
+            try {
+              const data = JSON.parse(response.responseText);
+              if (data.success) {
+                resolve(data.content);
+              } else {
+                reject(new Error(data.error || '格式化失败'));
+              }
+            } catch (e) {
+              reject(new Error('解析响应失败'));
+            }
+          },
+          onerror: (error) => {
+            reject(new Error('网络请求失败'));
+          }
+        });
+      })
+    }
+
+    // 主函数
+    async function handleFormat() {
+      const btn = document.querySelector('.fm-btn');
+      btn.classList.add('loading');
+      btn.textContent = '处理中...';
+
+      try {
+        // 读取剪切板
+        const content = await readClipboard();
+        if (!content) {
+          btn.classList.remove('loading');
+          btn.textContent = '格式化';
+          return
+        }
+
+        // 显示选项弹窗
+        const top = await showOptionsModal();
+        if (!top) {
+          btn.classList.remove('loading');
+          btn.textContent = '格式化';
+          return
+        }
+
+        // 发送格式化请求
+        const formatted = await formatContent(content, top);
+
+        // 保存到剪切板
+        GM_setClipboard(formatted, 'text');
+
+        showToast('格式化完成，已复制到剪切板！');
+      } catch (error) {
+        showToast(error.message, 'error');
+      } finally {
+        btn.classList.remove('loading');
+        btn.textContent = '格式化';
+      }
+    }
+
+    // 创建按钮
+    function createButton() {
+      const btn = document.createElement('button');
+      btn.className = 'fm-btn';
+      btn.textContent = '格式化';
+      btn.addEventListener('click', handleFormat);
+      document.body.appendChild(btn);
+    }
+
+    // 初始化
+    function init() {
+      injectStyles();
+      createButton();
+      console.log('[Markdown 格式化助手] 已加载');
+    }
+
+    // 等待页面加载完成
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+
+    // #endregion
   }
 
   /** [功能] 创建目录容器 */
