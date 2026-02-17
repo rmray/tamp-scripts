@@ -24,6 +24,10 @@ importers:
         specifier: workspace:*
         version: link:packages/utils
 
+  packages/scripts/gemini: {}
+
+  packages/scripts/hentai: {}
+
   packages/scripts/sehuatang: {}
 
   packages/scripts/sehuatang-detail: {}
