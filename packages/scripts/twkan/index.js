@@ -38,9 +38,11 @@ export async function main(config = {}) {
     .btn { width: 76px; height: 76px; background-color: #fff; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
     .downloaded { background-color: #f00; }
     .clear { background-color: #f00; }
+    .auto-active { background-color: #0a0; color: #fff; }
   `)
 
     setTimeout(() => {
+      autoDownloadBtn() // 自动下载按钮
       downloadBtn() // 下载按钮
       clearBtn() // 清空按钮
     }, 0)
@@ -123,7 +125,8 @@ function scrollToBottom() {
 /** 下载按钮 */
 function downloadBtn() {
   const fixedEl = document.querySelector('.baseScroll')
-  const btnEl = createElement({ text: '下载', cNames: ['btn'] })
+  if (!fixedEl) return
+  const btnEl = createElement({ text: '下载', cNames: ['btn', 'download-btn'] })
   fixedEl.prepend(btnEl)
 
   // 标记已下载
@@ -227,4 +230,76 @@ function onClear() {
   // console.log('more: ', title)
   localStorage.removeItem(title)
   this.classList.add('clear')
+}
+
+/** 自动下载 */
+
+const AUTO_DOWNLOAD_KEY = 'twkan_auto_download'
+const AUTO_DELAY = 2500
+
+/** 自动下载按钮 */
+function autoDownloadBtn() {
+  const fixedEl = document.querySelector('.baseScroll')
+  if (!fixedEl) return
+  const btnEl = createElement({ text: '自动', cNames: ['btn'] })
+  fixedEl.prepend(btnEl)
+
+  // 页面加载时检测是否处于自动下载状态
+  const isAuto = localStorage.getItem(AUTO_DOWNLOAD_KEY)
+  if (isAuto) {
+    btnEl.classList.add('auto-active')
+    btnEl.textContent = '停止'
+    // 页面刚加载，等待后继续自动下载
+    autoDownloadCycle(btnEl, true)
+  }
+
+  btnEl.onclick = () => toggleAutoDownload(btnEl)
+}
+
+function toggleAutoDownload(btnEl) {
+  const isActive = localStorage.getItem(AUTO_DOWNLOAD_KEY)
+  if (isActive) {
+    stopAutoDownload(btnEl)
+  } else {
+    localStorage.setItem(AUTO_DOWNLOAD_KEY, '1')
+    btnEl.classList.add('auto-active')
+    btnEl.textContent = '停止'
+    // 首次点击，立即开始下载
+    autoDownloadCycle(btnEl, false)
+  }
+}
+
+function stopAutoDownload(btnEl) {
+  localStorage.removeItem(AUTO_DOWNLOAD_KEY)
+  btnEl.classList.remove('auto-active')
+  btnEl.textContent = '自动'
+}
+
+function autoDownloadCycle(btnEl, needInitialDelay) {
+  const execute = () => {
+    if (!localStorage.getItem(AUTO_DOWNLOAD_KEY)) return
+
+    // 下载当前章节
+    const dlBtn = document.querySelector('.download-btn')
+    if (dlBtn) onDownload.call(dlBtn)
+
+    // 等待后点击下一页
+    setTimeout(() => {
+      if (!localStorage.getItem(AUTO_DOWNLOAD_KEY)) return
+
+      const nextLink = document.querySelector('.page1 > a:last-child')
+      if (nextLink && nextLink.textContent.includes('下一章')) {
+        nextLink.click()
+      } else {
+        // 没有下一章，停止自动下载
+        stopAutoDownload(btnEl)
+      }
+    }, AUTO_DELAY)
+  }
+
+  if (needInitialDelay) {
+    setTimeout(execute, AUTO_DELAY)
+  } else {
+    execute()
+  }
 }

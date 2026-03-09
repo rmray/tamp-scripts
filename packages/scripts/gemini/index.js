@@ -232,7 +232,7 @@ export async function main(config = {}) {
       // 创建选项按钮
       ;['H1', 'H2', 'H3', 'H4', 'H5', 'H6'].forEach((h) => {
         const option = document.createElement('div')
-        option.className = `fm-option ${h === 'H2' ? 'selected' : ''}`
+        option.className = `fm-option ${h === 'H1' ? 'selected' : ''}`
         option.dataset.value = h
         option.textContent = h
 
