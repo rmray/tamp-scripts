@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.10.0](https://github.com/rmray/tamp-scripts/compare/tm-utils@1.9.0...tm-utils@1.10.0) (2026-05-08)
+
+
+### Features
+
+* **sehuatang-detail:** 页面初始滚动 + 修改默认搜索模式 ([5ca04ac](https://github.com/rmray/tamp-scripts/commit/5ca04ac3e33422856012148a9954d6ca4daed32a))
+
+
+
+
+
 # [1.9.0](https://github.com/rmray/tamp-scripts/compare/tm-utils@1.8.0...tm-utils@1.9.0) (2026-02-16)
 
 
