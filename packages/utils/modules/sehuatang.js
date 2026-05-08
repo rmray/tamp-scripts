@@ -84,9 +84,9 @@ export async function createPageBtns(options = {}) {
         cNames: [`${type}-select`, 'page-btn']
       })
       btn.innerHTML = `
-        <option value="both" selected>同时搜索</option>
-        <option value="sehuatang">色花堂</option>
-        <option value="javbus">JavBus</option>  
+      <option value="sehuatang" selected>色花堂</option>
+      <option value="javbus">JavBus</option>  
+      <option value="both">同时搜索</option>
       `
     } else {
       btn = createElement({

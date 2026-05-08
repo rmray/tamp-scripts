@@ -36,7 +36,7 @@ let unFavBtn = null // Unfav 按钮
 // 搜索番号功能
 const SEHUATANG_SEARCH_BASE_URL = '/search.php?mod=forum'
 const JAVBUS_SEARCH_BASE_URL = 'https://www.busjav.bond/'
-let searchBaseUrls = [SEHUATANG_SEARCH_BASE_URL, JAVBUS_SEARCH_BASE_URL] // 目标搜索引擎 URL 列表
+let searchBaseUrls = [SEHUATANG_SEARCH_BASE_URL] // 目标搜索引擎 URL 列表
 
 let code = null // 番号
 let searchModeSelects = [] // 搜索模式选择按钮
@@ -49,15 +49,18 @@ export async function main(config) {
   api.initConfig({ baseUrl: config.BASE_API_URL })
   removeAd() // 去除广告
 
-  // 2. CSS 样式
+  // 2. 页面初始滚动
+  pageScroll()
+
+  // 3. CSS 样式
   setStyle() // 设置 CSS 样式
 
-  // 3. 网络请求
+  // 4. 网络请求
   bookmarks = await fetchBookmarks() // 请求书签列表数据
   bannedIdols = await fetchBannedIdols() // 请求 Ban 列表数据
   favoriteIdols = await fetchFavoriteIdols() // 请求 Fav 列表数据
 
-  // 4. 书签功能
+  // 5. 书签功能
   bookmarkBtns = await createPageBtns({
     type: 'bookmark',
     text: '添加书签',
@@ -67,12 +70,12 @@ export async function main(config) {
   }) // 创建书签按钮
   bookmarkBtnClick() // 书签按钮点击事件
 
-  // 5. Ban/Fav 功能
+  // 6. Ban/Fav 功能
   await createBanFavForm() // 创建 Ban/Unban 和 Fav/Unfav 表单
   await initIdolStatus() // 初始化女优状态
   updateIdolStatus() // 更新女优状态
 
-  // 6. 搜索番号/女优
+  // 7. 搜索番号/女优
   code = matchContent('code')
   searchModeSelects = await createPageBtns({ type: 'search-mode', text: '搜索模式' }) // 创建搜索模式选择按钮
   searchCodeBtns = await createPageBtns({ type: 'search-code', text: `搜索`, values: [code] }) // 创建搜索番号按钮
@@ -276,6 +279,19 @@ function searchBtnsClick() {
 
         window.open(searchUrl, '_blank')
       })
+    })
+  })
+}
+
+// #endregion
+
+// #region 页面初始滚动 -------------------------------------------------------
+
+/** [功能] 页面初始滚动 */
+function pageScroll() {
+  window.addEventListener('load', () => {
+    requestAnimationFrame(() => {
+      window.scrollTo({ top: 420, behavior: 'smooth' })
     })
   })
 }
