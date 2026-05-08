@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.8.1](https://github.com/rmray/tamp-scripts/compare/tm-sehuatang-detail@1.8.0...tm-sehuatang-detail@1.8.1) (2026-05-08)
+
+
+### Bug Fixes
+
+* **twkan:** 修复标题章节无法解析 ([8baaa60](https://github.com/rmray/tamp-scripts/commit/8baaa606db548229139ee56d3d8fd612cb147d9d))
+
+
+
+
+
 # [1.8.0](https://github.com/rmray/tamp-scripts/compare/tm-sehuatang-detail@1.7.0...tm-sehuatang-detail@1.8.0) (2026-05-08)
 
 

@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.2.3](https://github.com/rmray/tamp-scripts/compare/tm-twkan@1.2.2...tm-twkan@1.2.3) (2026-05-08)
+
+
+### Bug Fixes
+
+* **twkan:** 修复标题章节无法解析 ([8baaa60](https://github.com/rmray/tamp-scripts/commit/8baaa606db548229139ee56d3d8fd612cb147d9d))
+
+
+
+
+
 ## [1.2.2](https://github.com/rmray/tamp-scripts/compare/tm-twkan@1.2.1...tm-twkan@1.2.2) (2026-03-09)
 
 
