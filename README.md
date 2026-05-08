@@ -406,7 +406,7 @@ _这是你安装到浏览器的真实文件。_
 2. **Lerna 发版**：
 
    ```bash
-   pnpm run realease
+   pnpm run release
    
    # 内部会执行2个步骤
    # "lerna version --conventional-commits --yes && git push --follow-tags"

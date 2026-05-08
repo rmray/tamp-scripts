@@ -95,7 +95,16 @@ function calcUpdateCount() {
 
 /** 置底 */
 function setBottom() {
-  const list = ['多我一个后富怎么了', '腐朽世界']
+  const list = [
+    '多我一个后富怎么了',
+    '多我一個後富怎麼了',
+    '远东匹夫',
+    '遠東匹夫',
+    '重生九三，开局成了煤老板',
+    '重生九三，開局成了煤老闆',
+    '沸腾时代',
+    '沸騰時代'
+  ]
 
   const listParent = document.querySelector('.newbox>ul')
   const allListEls = document.querySelectorAll('.newbox>ul>li[id^="book"]')

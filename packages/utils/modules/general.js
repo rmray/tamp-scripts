@@ -67,7 +67,16 @@ export function zh2num(item) {
   var zh = zhArr[0]
   //console.log(zh);
   // 处理中文字符
-  zh = zh.replace('第', '').replace('章', '').replace('节', '').replace('.', '').replace(' ', '').replace('续', '')
+  zh = zh
+    .replace('第', '')
+    .replace('章', '')
+    .replace('节', '')
+    .replace('.', '')
+    .replace(' ', '')
+    .replace('续', '')
+    .replace('【', '')
+    .replace('、', '')
+    .replace('：', '')
   if (parseFloat(zh).toString() !== 'NaN') {
     //console.log(zh);
     return zh

@@ -628,8 +628,6 @@
     searchModeSelects[0].addEventListener('change', function () {
       const mode = this.value;
 
-      console.log('mode: ' + mode);
-
       switch (mode) {
         case 'sehuatang':
           searchBaseUrls = [SEHUATANG_SEARCH_BASE_URL];
@@ -650,8 +648,6 @@
       btn.addEventListener('click', function () {
         const isIdolSearch = searchIdolBtns.includes(this);
         const keyword = this.textContent.replace('搜索', '').trim();
-
-        console.log('searchBaseUrls: ' + searchBaseUrls);
 
         // 执行搜索，批量打开搜索引擎 URL
         searchBaseUrls.forEach((baseUrl) => {
@@ -682,7 +678,6 @@
     window.addEventListener('load', () => {
       requestAnimationFrame(() => {
         window.scrollTo({ top: 420, behavior: 'smooth' });
-        console.log('pageScroll');
       });
     });
   }
