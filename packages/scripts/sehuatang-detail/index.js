@@ -291,7 +291,7 @@ function searchBtnsClick() {
 function pageScroll() {
   window.addEventListener('load', () => {
     requestAnimationFrame(() => {
-      window.scrollTo({ top: 420, behavior: 'smooth' })
+      window.scrollTo({ top: 410, behavior: 'smooth' })
     })
   })
 }

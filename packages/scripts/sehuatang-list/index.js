@@ -80,6 +80,7 @@ async function highlightMarked() {
   // console.log('listEls: ', listEls)
   listEls.forEach((el) => {
     if (!el.href) return
+
     const id = el.href?.includes('forum.php') ? Number(getUrl(el.href).searches.tid) : Number(el.href.split('-')[1])
     const isMarked = bookmarks.includes(id)
     if (isMarked) el.style.backgroundColor = '#f78b3e'

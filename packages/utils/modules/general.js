@@ -33,12 +33,13 @@ export function initGeneralStyle() {
 }
 
 /** 获取URL */
-export function getUrl(url = '') {
-  const href = url || window.location.href // https://fxc5.5qm5s.net/forum.php?mod=forumdisplay&fid=37&page=100
-  const origin = window.location.origin // https://fxc5.5qm5s.net
-  const pathname = window.location.pathname // /forum.php
-  const search = window.location.search // ?mod=forumdisplay&fid=37&page=100
-  const searches = Object.fromEntries(new URLSearchParams(window.location.search)) // {mod: 'forumdisplay', fid: '37', page: '100'}
+export function getUrl(urlStr = '') {
+  const href = urlStr || window.location.href // https://fxc5.5qm5s.net/forum.php?mod=forumdisplay&fid=37&page=100
+  const url = new URL(href)
+  const origin = url.origin // https://fxc5.5qm5s.net
+  const pathname = url.pathname // /forum.php
+  const search = url.search // ?mod=forumdisplay&fid=37&page=100
+  const searches = Object.fromEntries(new URLSearchParams(url.search)) // {mod: 'forumdisplay', fid: '37', page: '100'}
 
   return { origin, pathname, search, searches }
 }
