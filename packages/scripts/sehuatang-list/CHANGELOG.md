@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.7.1](https://github.com/rmray/tamp-scripts/compare/tm-sehuatang-list@1.7.0...tm-sehuatang-list@1.7.1) (2026-05-20)
+
+
+### Bug Fixes
+
+* **utils:** 修复 getUrl() 的逻辑错误 ([ad7b52f](https://github.com/rmray/tamp-scripts/commit/ad7b52f1b1f9453d39f28cdc8418a9c05aa77356))
+
+
+
+
+
 # [1.7.0](https://github.com/rmray/tamp-scripts/compare/tm-sehuatang-list@1.6.0...tm-sehuatang-list@1.7.0) (2026-02-16)
 
 

@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.2.4](https://github.com/rmray/tamp-scripts/compare/tm-twkan@1.2.3...tm-twkan@1.2.4) (2026-05-20)
+
+
+### Bug Fixes
+
+* **utils:** 修复 getUrl() 的逻辑错误 ([ad7b52f](https://github.com/rmray/tamp-scripts/commit/ad7b52f1b1f9453d39f28cdc8418a9c05aa77356))
+
+
+
+
+
 ## [1.2.3](https://github.com/rmray/tamp-scripts/compare/tm-twkan@1.2.2...tm-twkan@1.2.3) (2026-05-08)
 
 
