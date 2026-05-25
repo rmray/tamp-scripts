@@ -25,10 +25,12 @@ export async function main(config = {}) {
         .count { position: absolute; left: 0; top: 0; width: 30px; height: 30px; background-color: #999; color: #fff; display: flex; align-items: center; justify-content: center; }
         .count2 { color: #00f;  }
         .count3 { color: #f00;  }
+        .today-update { font-weight: bold !important; }
       `)
       updateMark() // 是否显示更新标记
       calcUpdateCount() // 计算更新章节数量
       setBottom() // 置底
+      highlightTodayUpdates() // 高亮当天有新更新的书籍
     }
   } else if (isCatalog) {
     // 目录页
@@ -124,6 +126,8 @@ function setBottom() {
     '魔修也要上班打卡嗎？',
     '万物希声',
     '萬物希聲',
+    '万相塔',
+    '萬相塔',
     '无限魔神：没流量怎么下载？',
     '無限魔神：沒流量怎麼下載？'
   ]
@@ -141,8 +145,41 @@ function setBottom() {
   console.log(filtedListEls)
 }
 
+/** 高亮当天有新更新的书名和最新章节 */
+function highlightTodayUpdates() {
+  const today = new Date()
+  const mm = String(today.getMonth() + 1).padStart(2, '0')
+  const dd = String(today.getDate()).padStart(2, '0')
+  const todayStr = `${mm}-${dd}`
+
+  const allListEls = document.querySelectorAll('.newbox>ul>li[id^="book"]')
+  allListEls.forEach((el) => {
+    const dateEl = el.querySelector('.newright > span:first-of-type')
+    if (!dateEl) return
+
+    const dateText = dateEl.textContent.trim()
+    if (dateText === todayStr) {
+      const latestChapterEl = el.querySelector('.zxzj p:nth-of-type(2) a')
+
+      if (latestChapterEl) {
+        latestChapterEl.classList.add('today-update')
+      }
+    }
+  })
+}
+
 /** 新小说网站书架页兼容 (xsw.tw/mybook.html) */
 function updateXswBookcase() {
+  GM_addStyle(`
+    .today-update { font-weight: bold !important; }
+  `)
+
+  const today = new Date()
+  const yyyy = today.getFullYear()
+  const mm = String(today.getMonth() + 1).padStart(2, '0')
+  const dd = String(today.getDate()).padStart(2, '0')
+  const todayStr = `${yyyy}-${mm}-${dd}`
+
   const headerRow = document.querySelector('#articlelist > ul:first-of-type > li')
   if (headerRow) {
     const newHeader = createElement({
@@ -164,6 +201,18 @@ function updateXswBookcase() {
 
     const latestSpan = l8Spans[0]
     const bookmarkSpan = l8Spans[1]
+
+    // 检查并高亮当天更新
+    const dateSpan = row.querySelector('span.l7')
+    if (dateSpan) {
+      const dateText = dateSpan.textContent.trim()
+      if (dateText.startsWith(todayStr)) {
+        const latestChapterEl = latestSpan.querySelector('a')
+        if (latestChapterEl) {
+          latestChapterEl.classList.add('today-update')
+        }
+      }
+    }
 
     const latestTitle = latestSpan.querySelector('a')?.textContent?.trim() || ''
     const bookmarkTitle = bookmarkSpan.querySelector('a')?.textContent?.trim() || ''
