@@ -384,14 +384,21 @@ function getFirstLine(content) {
 }
 
 function saveChapter(title, chapter, content) {
+  const cleanChapter = chapter.replace(/^(?:\r?\n)+|(?:\r?\n)+$/g, '')
+  const cleanContent = content.replace(/^(?:\r?\n)+|(?:\r?\n)+$/g, '')
+
   let value = localStorage.getItem(title)
   if (value) {
     // 追加
-    value += chapter + '\n\n' + content + '\n\n'
-    localStorage.setItem(title, value)
+    value = value.replace(/(?:\r?\n)+$/, '') + '\n\n\n' + cleanChapter + '\n\n' + cleanContent + '\n\n'
   } else {
-    localStorage.setItem(title, chapter + '\n\n' + content + '\n\n')
+    value = cleanChapter + '\n\n' + cleanContent + '\n\n'
   }
+
+  // 统一将所有连续 4 个及以上的换行符替换为 3 个换行符
+  value = value.replace(/(?:\r?\n){4,}/g, '\n\n\n')
+
+  localStorage.setItem(title, value)
 }
 
 function clearBtn() {
