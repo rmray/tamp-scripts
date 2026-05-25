@@ -139,6 +139,45 @@
     return zhNum
   }
 
+  /** [功能] 消息提示（支持多条堆叠） */
+  const _toastList = [];
+  const TOAST_GAP = 10; // toast 之间的间距
+  const TOAST_TOP = 200; // 第一个 toast 距顶部的距离
+
+  function _updateToastPositions() {
+    let currentTop = TOAST_TOP;
+    for (const t of _toastList) {
+      t.style.top = currentTop + 'px';
+      currentTop += t.offsetHeight + TOAST_GAP;
+    }
+  }
+
+  function _removeToast(toast) {
+    toast.classList.add('tm-toast-out');
+    toast.addEventListener(
+      'animationend',
+      () => {
+        const idx = _toastList.indexOf(toast);
+        if (idx > -1) _toastList.splice(idx, 1);
+        toast.remove();
+        _updateToastPositions();
+      },
+      { once: true }
+    );
+  }
+
+  function showToast(message, type = 'success') {
+    const toast = document.createElement('div');
+    toast.className = `tm-toast ${type}`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+
+    _toastList.push(toast);
+    _updateToastPositions();
+
+    setTimeout(() => _removeToast(toast), 3000);
+  }
+
   /** [功能] 创建元素 */
   function createElement(option) {
     const { type = 'div', text = '', css = '', cNames = [], attrs = [], value = '', name = '' } = option;
@@ -228,6 +267,7 @@
       setTimeout(() => {
         autoDownloadBtn(); // 自动下载按钮
         downloadBtn(); // 下载按钮
+        copyBtn(); // 复制按钮
         clearBtn(); // 清空按钮
       }, 0);
     }
@@ -511,6 +551,24 @@
     const parser = new DOMParser();
     const doc = parser.parseFromString(content, 'text/html');
     content = doc.querySelector('body').textContent;
+
+    const isXsw = window.location.hostname.includes('xsw.tw');
+    if (isXsw) {
+      content = content.replace(/\u00a0\u00a0\u00a0\u00a0/g, '\n\n');
+      content = content.replace(/\u00a0/g, '\n\n');
+      content = content.replace(/\u000b/g, '\n\n');
+      content = content.replace(/\u000c/g, '\n\n');
+      content = content.replace(/\u000e/g, '\n\n');
+      content = content.replace(/\u000f/g, '\n\n');
+      content = content.replace(/\u0002/g, '\n\n');
+      content = content.replace(/\u0003/g, '\n\n');
+      content = content.replace(/\u0004/g, '\n\n');
+      content = content.replace(/\u0005/g, '\n\n');
+      content = content.replace(/\u0006/g, '\n\n');
+      content = content.replace(/\u0008/g, '\n\n');
+      content = content.replace(/\u0010/g, '\n\n');
+    }
+
     // console.log('firstLine', firstLine)
 
     const firstLine = getFirstLine(content);
@@ -642,6 +700,58 @@
     } else {
       execute();
     }
+  }
+
+  function copyBtn() {
+    const fixedEl = document.querySelector('.baseScroll');
+    if (!fixedEl) return
+    const btnEl = createElement({ text: '复制', cNames: ['btn', 'copy-btn'] });
+    fixedEl.append(btnEl);
+    btnEl.onclick = onCopy;
+  }
+
+  function onCopy() {
+    const title = getBookTitle();
+    const value = localStorage.getItem(title);
+    if (!value) {
+      showToast('暂无已下载的内容', 'error');
+      return
+    }
+
+    copyText(value)
+      .then(() => {
+        showToast('已复制到剪切板！', 'success');
+      })
+      .catch((err) => {
+        console.error('复制失败:', err);
+        showToast('复制失败，请重试', 'error');
+      });
+  }
+
+  function copyText(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(text)
+    }
+    // 回退方案
+    return new Promise((resolve, reject) => {
+      try {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+        const success = document.execCommand('copy');
+        document.body.removeChild(textarea);
+        if (success) {
+          resolve();
+        } else {
+          reject(new Error('execCommand copy failed'));
+        }
+      } catch (err) {
+        reject(err);
+      }
+    })
   }
 
   exports.main = main;

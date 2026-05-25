@@ -1,4 +1,4 @@
-import { api, createElement, zh2num, getUrl } from 'tm-utils'
+import { api, createElement, zh2num, getUrl, showToast } from 'tm-utils'
 
 const url = getUrl()
 
@@ -64,6 +64,7 @@ export async function main(config = {}) {
     setTimeout(() => {
       autoDownloadBtn() // 自动下载按钮
       downloadBtn() // 下载按钮
+      copyBtn() // 复制按钮
       clearBtn() // 清空按钮
     }, 0)
   }
@@ -347,6 +348,24 @@ function filterContent(content, chapter) {
   const parser = new DOMParser()
   const doc = parser.parseFromString(content, 'text/html')
   content = doc.querySelector('body').textContent
+
+  const isXsw = window.location.hostname.includes('xsw.tw')
+  if (isXsw) {
+    content = content.replace(/\u00a0\u00a0\u00a0\u00a0/g, '\n\n')
+    content = content.replace(/\u00a0/g, '\n\n')
+    content = content.replace(/\u000b/g, '\n\n')
+    content = content.replace(/\u000c/g, '\n\n')
+    content = content.replace(/\u000e/g, '\n\n')
+    content = content.replace(/\u000f/g, '\n\n')
+    content = content.replace(/\u0002/g, '\n\n')
+    content = content.replace(/\u0003/g, '\n\n')
+    content = content.replace(/\u0004/g, '\n\n')
+    content = content.replace(/\u0005/g, '\n\n')
+    content = content.replace(/\u0006/g, '\n\n')
+    content = content.replace(/\u0008/g, '\n\n')
+    content = content.replace(/\u0010/g, '\n\n')
+  }
+
   // console.log('firstLine', firstLine)
 
   const firstLine = getFirstLine(content)
@@ -478,4 +497,56 @@ function autoDownloadCycle(btnEl, needInitialDelay) {
   } else {
     execute()
   }
+}
+
+function copyBtn() {
+  const fixedEl = document.querySelector('.baseScroll')
+  if (!fixedEl) return
+  const btnEl = createElement({ text: '复制', cNames: ['btn', 'copy-btn'] })
+  fixedEl.append(btnEl)
+  btnEl.onclick = onCopy
+}
+
+function onCopy() {
+  const title = getBookTitle()
+  const value = localStorage.getItem(title)
+  if (!value) {
+    showToast('暂无已下载的内容', 'error')
+    return
+  }
+
+  copyText(value)
+    .then(() => {
+      showToast('已复制到剪切板！', 'success')
+    })
+    .catch((err) => {
+      console.error('复制失败:', err)
+      showToast('复制失败，请重试', 'error')
+    })
+}
+
+function copyText(text) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    return navigator.clipboard.writeText(text)
+  }
+  // 回退方案
+  return new Promise((resolve, reject) => {
+    try {
+      const textarea = document.createElement('textarea')
+      textarea.value = text
+      textarea.style.position = 'fixed'
+      document.body.appendChild(textarea)
+      textarea.focus()
+      textarea.select()
+      const success = document.execCommand('copy')
+      document.body.removeChild(textarea)
+      if (success) {
+        resolve()
+      } else {
+        reject(new Error('execCommand copy failed'))
+      }
+    } catch (err) {
+      reject(err)
+    }
+  })
 }
