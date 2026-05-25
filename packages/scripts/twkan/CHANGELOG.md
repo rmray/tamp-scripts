@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.5.0](https://github.com/rmray/tamp-scripts/compare/tm-twkan@1.4.0...tm-twkan@1.5.0) (2026-05-25)
+
+
+### Features
+
+* **twkan:** 一键复制功能 ([08397b5](https://github.com/rmray/tamp-scripts/commit/08397b53bccca6c52faac5b0c5d49f29c714452d))
+
+
+
+
+
 # [1.4.0](https://github.com/rmray/tamp-scripts/compare/tm-twkan@1.3.0...tm-twkan@1.4.0) (2026-05-25)
 
 
