@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.3.0](https://github.com/rmray/tamp-scripts/compare/tm-twkan@1.2.4...tm-twkan@1.3.0) (2026-05-25)
+
+
+### Features
+
+* **twkan:** 兼容 xsw.tw 网站的自动下载和书架页 ([a571447](https://github.com/rmray/tamp-scripts/commit/a57144786a0bbbc42d3edd02db865c720b370044))
+
+
+
+
+
 ## [1.2.4](https://github.com/rmray/tamp-scripts/compare/tm-twkan@1.2.3...tm-twkan@1.2.4) (2026-05-20)
 
 
