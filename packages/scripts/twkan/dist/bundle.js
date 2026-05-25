@@ -171,19 +171,30 @@
     if (!config.BASE_API_URL) throw new Error('缺少配置项: BASE_API_URL')
     initConfig({ baseUrl: config.BASE_API_URL });
 
-    // console.log(url)
+    console.log(url, url.hostname);
 
-    if (['/bookcase', '/modules/article/bookcase.php'].includes(url.pathname)) {
+    const isXsw = url.origin.includes('xsw.tw');
+    const isBookcase = isXsw
+      ? ['/bookcase.html', '/mybook.html'].includes(url.pathname)
+      : ['/bookcase', '/modules/article/bookcase.php'].includes(url.pathname);
+    const isCatalog = isXsw ? url.pathname.match(/\/book\/[^/]+\/?$/) : url.pathname.startsWith('/book/');
+    const isContent = isXsw ? url.pathname.match(/\/book\/[^/]+\/[^/]+\.html$/) : url.pathname.startsWith('/txt/');
+
+    if (isBookcase) {
       // 书架页
-      GM_addStyle(`
-      .count { position: absolute; left: 0; top: 0; width: 30px; height: 30px; background-color: #999; color: #fff; display: flex; align-items: center; justify-content: center; }
-      .count2 { color: #00f;  }
-      .count3 { color: #f00;  }
-    `);
-      updateMark(); // 是否显示更新标记
-      calcUpdateCount(); // 计算更新章节数量
-      setBottom(); // 置底
-    } else if (url.pathname.startsWith('/book/')) {
+      if (isXsw) {
+        updateXswBookcase();
+      } else {
+        GM_addStyle(`
+        .count { position: absolute; left: 0; top: 0; width: 30px; height: 30px; background-color: #999; color: #fff; display: flex; align-items: center; justify-content: center; }
+        .count2 { color: #00f;  }
+        .count3 { color: #f00;  }
+      `);
+        updateMark(); // 是否显示更新标记
+        calcUpdateCount(); // 计算更新章节数量
+        setBottom(); // 置底
+      }
+    } else if (isCatalog) {
       // 目录页
       // 修改样式
       GM_addStyle(`
@@ -193,9 +204,12 @@
       #allchapter > ul a:visited {
         color: red!important;
       }
+      .liebiao ul li a:visited {
+        color: red!important;
+      }
     `);
       scrollToBottom(); // 滚动到底部
-    } else if (url.pathname.startsWith('/txt/')) {
+    } else if (isContent) {
       // 下载
       // 样式
       GM_addStyle(`
@@ -204,6 +218,10 @@
     .clear { background-color: #f00; }
     .auto-active { background-color: #0a0; color: #fff; }
   `);
+
+      if (isXsw) {
+        injectBaseScrollForXsw();
+      }
 
       setTimeout(() => {
         autoDownloadBtn(); // 自动下载按钮
@@ -260,14 +278,18 @@
   /** 置底 */
   function setBottom() {
     const list = [
-      '多我一个后富怎么了',
-      '多我一個後富怎麼了',
       '远东匹夫',
       '遠東匹夫',
       '重生九三，开局成了煤老板',
       '重生九三，開局成了煤老闆',
-      '沸腾时代',
-      '沸騰時代'
+      '白衣卿相',
+      '白衣卿相',
+      '魔修也要上班打卡吗？',
+      '魔修也要上班打卡嗎？',
+      '万物希声',
+      '萬物希聲',
+      '无限魔神：没流量怎么下载？',
+      '無限魔神：沒流量怎麼下載？'
     ];
 
     const listParent = document.querySelector('.newbox>ul');
@@ -281,6 +303,64 @@
     });
 
     console.log(filtedListEls);
+  }
+
+  /** 新小说网站书架页兼容 (xsw.tw/mybook.html) */
+  function updateXswBookcase() {
+    const headerRow = document.querySelector('#articlelist > ul:first-of-type > li');
+    if (headerRow) {
+      const newHeader = createElement({
+        type: 'span',
+        cNames: ['l0'],
+        text: '更新',
+        css: 'text-align: center; font-weight: bold;'
+      });
+      const firstSpan = headerRow.querySelector('span');
+      if (firstSpan) {
+        headerRow.insertBefore(newHeader, firstSpan);
+      }
+    }
+
+    const bookRows = document.querySelectorAll('#articlelist > ul:last-of-type > li');
+    bookRows.forEach((row) => {
+      const l8Spans = row.querySelectorAll('span.l8');
+      if (l8Spans.length < 2) return
+
+      const latestSpan = l8Spans[0];
+      const bookmarkSpan = l8Spans[1];
+
+      const latestTitle = latestSpan.querySelector('a')?.textContent?.trim() || '';
+      const bookmarkTitle = bookmarkSpan.querySelector('a')?.textContent?.trim() || '';
+
+      const latestNum = Number(zh2num(latestTitle)) || 0;
+      const bookmarkNum = Number(zh2num(bookmarkTitle)) || 0;
+
+      const disCount = Math.max(0, latestNum - bookmarkNum);
+
+      const countEl = createElement({
+        type: 'span',
+        cNames: ['l0'],
+        text: String(disCount)
+      });
+
+      countEl.style.textAlign = 'center';
+      if (disCount >= 50) {
+        countEl.style.color = '#f00';
+        countEl.style.fontWeight = 'bold';
+      } else if (disCount >= 20) {
+        countEl.style.color = '#00f';
+        countEl.style.fontWeight = 'bold';
+      } else if (disCount > 0) {
+        countEl.style.color = '#0a0';
+      } else {
+        countEl.style.color = '#999';
+      }
+
+      const firstSpan = row.querySelector('span');
+      if (firstSpan) {
+        row.insertBefore(countEl, firstSpan);
+      }
+    });
   }
 
   /** 目录页 */
@@ -307,18 +387,48 @@
     btnEl.onclick = onDownload;
   }
 
+  function getBookTitle() {
+    const isXsw = window.location.hostname.includes('xsw.tw');
+    if (isXsw) {
+      return document.querySelector('ul.bread-crumbs li:nth-child(3) a')?.textContent?.trim() || ''
+    } else {
+      return document.querySelector('.bread > a:last-of-type')?.textContent?.trim() || ''
+    }
+  }
+
+  function injectBaseScrollForXsw() {
+    if (document.querySelector('.baseScroll')) return
+    const scrollEl = createElement({
+      cNames: ['baseScroll'],
+      css: `
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    `
+    });
+    document.body.appendChild(scrollEl);
+  }
+
   function onDownload() {
-    // 获取小说标题
-    const title = document.querySelector('.bread > a:last-of-type').textContent;
-    // console.log('title: ', title)
+    const isXsw = window.location.hostname.includes('xsw.tw');
+    const title = getBookTitle();
 
     // 获取章节标题/内容
-    const chapter = document.querySelector('.txtnav > h1').textContent;
-    let content = document.querySelector('.txtnav').innerHTML;
-    if (document.querySelector('#txtcontent0')) {
-      content = document.querySelector('#txtcontent0').innerHTML;
+    let chapter = '';
+    let content = '';
+
+    if (isXsw) {
+      chapter = document.querySelector('h2')?.textContent?.trim() || '';
+      content =
+        document.querySelector('p#new_content')?.innerHTML || document.querySelector('div#content')?.innerHTML || '';
+    } else {
+      chapter = document.querySelector('.txtnav > h1')?.textContent?.trim() || '';
+      content = document.querySelector('#txtcontent0')?.innerHTML || document.querySelector('.txtnav')?.innerHTML || '';
     }
-    // console.log('content: ', content)
 
     // 过滤content内容
     content = filterContent(content, chapter);
@@ -342,7 +452,7 @@
       .replace('loadAdv(7,3);', '')
       .replace('&emsp;', '')
 
-      .replace(/.*([台臺][湾灣]小[说説說][网網]|twkan|域名|本书由|GOOGLE搜索).*/gi, '')
+      .replace(/.*([台臺][湾灣]小[说説說][网網]|twkan|xsw\.tw|域名|本书由|GOOGLE搜索).*/gi, '')
       .replace(
         /[６|❻|➅|９|➈|❾|ｓ|ร|𝓼|Ş|Ⓢ|ѕ|𝓈|𝕤|ş|ⓢ|ֆ|ｈ|ђ|ʰ|ᕼ|Ⓗ|н|ħ|ɦ|ｕ|ᑌ|Ữ|ᵘ|𝔲|𝓊|υ|ย|ʊ|ｘ|𝔁|乂|𝓍|᙭|Ж|ⓧ|Ӽ|ｃ|ᑕ|ς|ⓒ|𝒸|¢|Č|匚|ᶜ|℃|ƈ|ｏ|ⓞ|Ø|☯|๏|𝔬|Ⓒ|𝐨|σ|ό|Ỗ|ᗝ|օ|ｍ|𝐦|𝐌|ᗰ|𝓂|м|ϻ|𝕞|爪|Μ|Ⓜ|ʍ|💘|🐤|🐨|😝|💙|👽]/gi,
         ''
@@ -389,7 +499,7 @@
 
     // 标记已清空
     setTimeout(() => {
-      const title = document.querySelector('.bread > a:last-of-type').textContent;
+      const title = getBookTitle();
       // console.log('more: ', title)
       const isClear = !localStorage.getItem(title);
       if (isClear) btnEl.classList.add('clear');
@@ -399,7 +509,7 @@
   }
 
   function onClear() {
-    const title = document.querySelector('.bread > a:last-of-type').textContent;
+    const title = getBookTitle();
     // console.log('more: ', title)
     localStorage.removeItem(title);
     this.classList.add('clear');
@@ -460,8 +570,16 @@
       setTimeout(() => {
         if (!localStorage.getItem(AUTO_DOWNLOAD_KEY)) return
 
-        const nextLink = document.querySelector('.page1 > a:last-child');
-        if (nextLink && nextLink.textContent.includes('下一章')) {
+        const isXsw = window.location.hostname.includes('xsw.tw');
+        const nextLink = isXsw
+          ? Array.from(document.querySelectorAll('div#thumb a')).find(
+              (a) => a.textContent.includes('下一章') || a.textContent.includes('下一頁')
+            )
+          : Array.from(document.querySelectorAll('.page1 > a')).find(
+              (a) => a.textContent.includes('下一章') || a.textContent.includes('下一頁')
+            );
+
+        if (nextLink && (nextLink.textContent.includes('下一章') || nextLink.textContent.includes('下一頁'))) {
           nextLink.click();
         } else {
           // 没有下一章，停止自动下载
