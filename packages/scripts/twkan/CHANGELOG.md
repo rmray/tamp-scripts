@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.4.0](https://github.com/rmray/tamp-scripts/compare/tm-twkan@1.3.0...tm-twkan@1.4.0) (2026-05-25)
+
+
+### Features
+
+* **twkan:** 高亮当日更新的章节 ([554d450](https://github.com/rmray/tamp-scripts/commit/554d450c2c07b7490eff8d0d4184f2b727d95637))
+
+
+
+
+
 # [1.3.0](https://github.com/rmray/tamp-scripts/compare/tm-twkan@1.2.4...tm-twkan@1.3.0) (2026-05-25)
 
 
