@@ -9,6 +9,8 @@ let chatHistoryEl = null // 侧边对话历史记录
 let myContentEl = null // 我的内容
 let scrollObserver = null // 滚动监听观察器
 let currentSelectedIndex = -1 // 当前选中的列表项索引
+let mutationTimer = null // DOM 变化节流定时器
+let queryListSignature = '' // 当前问题目录签名
 
 export async function main(config = {}) {
   // 1. 初始化配置
@@ -21,49 +23,43 @@ export async function main(config = {}) {
   // [功能] 标注重点按钮点击处理（事件委托，只需注册一次）
   hdlImportantClick()
 
+  // [功能] 点击滚动可视（事件委托，只需注册一次）
+  hdlScrollClick()
+
   // [功能] 监听延迟加载的网页元素
-  elementObserver((mutation) => {
-    if (mutation.addedNodes.length) {
-      // [功能] 修改设置和帮助样式
-      const oldSettingBtn = document.querySelector(
-        'side-nav-action-button[data-test-id="settings-and-help-button"]'
-      )
-      const newSettingBtn = document.querySelector(
-        'button[data-test-id="mavatar-footer-settings-button"]'
-      )
-      const settingEl = (oldSettingBtn || newSettingBtn)?.parentNode
-      if (settingEl) {
-        settingEl.style.margin = '0px'
-      }
-
-      // [功能] 修改“我的内容”样式
-      myContentEl = document.querySelector('.side-nav-entry-container')
-      if (myContentEl) {
-        myContentEl.style.display = 'none'
-      } else {
-        const newMyStuffEls = document.querySelectorAll(
-          'gem-nav-list-item[data-test-id="my-stuff-side-nav-entry-button"]'
-        )
-        newMyStuffEls.forEach((el) => {
-          el.style.display = 'none'
-        })
-      }
-
-      // [功能] 生成问题目录
-      userQueryEls = document.querySelectorAll('user-query .query-text')
-      if (userQueryEls) genQuestionList()
-
-      // [功能] 点击滚动可视
-      queryItemEls = document.querySelectorAll('.question-item')
-      if (queryItemEls) hdlScrollClick()
-
-      // [功能] 滚动高亮当前问题
-      if (userQueryEls && queryItemEls) hdlScrollHighlight()
-
-      // [功能] 设置侧边对话历史记录 overflow 为auto
-      chatHistoryEl = document.querySelector('infinite-scroller:not(.chat-history)')
-      if (chatHistoryEl) setChatHistroyStyle()
+  elementObserver(() => {
+    // [功能] 修改设置和帮助样式
+    const oldSettingBtn = document.querySelector(
+      'side-nav-action-button[data-test-id="settings-and-help-button"]'
+    )
+    const newSettingBtn = document.querySelector(
+      'button[data-test-id="mavatar-footer-settings-button"]'
+    )
+    const settingEl = (oldSettingBtn || newSettingBtn)?.parentNode
+    if (settingEl) {
+      settingEl.style.margin = '0px'
     }
+
+    // [功能] 修改“我的内容”样式
+    myContentEl = document.querySelector('.side-nav-entry-container')
+    if (myContentEl) {
+      myContentEl.style.display = 'none'
+    } else {
+      const newMyStuffEls = document.querySelectorAll(
+        'gem-nav-list-item[data-test-id="my-stuff-side-nav-entry-button"]'
+      )
+      newMyStuffEls.forEach((el) => {
+        el.style.display = 'none'
+      })
+    }
+
+    // [功能] 生成问题目录
+    userQueryEls = document.querySelectorAll('user-query .query-text')
+    if (userQueryEls?.length) updateQuestionList()
+
+    // [功能] 设置侧边对话历史记录 overflow 为auto
+    chatHistoryEl = document.querySelector('infinite-scroller:not(.chat-history)')
+    if (chatHistoryEl) setChatHistroyStyle()
   })
 
   // #region Markdown 格式化 -------------------------------------------------------
@@ -429,7 +425,10 @@ function createQueryContainer() {
 function elementObserver(fn) {
   rootEl = document.querySelector('#app-root')
   const observer = new MutationObserver((mutations) => {
-    mutations.forEach(fn)
+    if (!mutations.some((mutation) => mutation.addedNodes.length)) return
+
+    clearTimeout(mutationTimer)
+    mutationTimer = setTimeout(fn, 100)
   })
 
   observer.observe(rootEl, {
@@ -438,8 +437,26 @@ function elementObserver(fn) {
   })
 }
 
+function getQueryTexts() {
+  return Array.from(userQueryEls || []).map((el) => {
+    return el.querySelector('.query-text-line')?.textContent?.replace(/\s+/g, ' ').trim() || ''
+  })
+}
+
+function updateQuestionList() {
+  const queryTexts = getQueryTexts()
+  const nextSignature = queryTexts.join('\n')
+
+  if (nextSignature === queryListSignature) return
+
+  queryListSignature = nextSignature
+  genQuestionList(queryTexts)
+  queryItemEls = queryContainerEl.querySelectorAll('.question-item')
+  hdlScrollHighlight()
+}
+
 /** [功能] 生成问题目录 */
-function genQuestionList() {
+function genQuestionList(queryTexts = getQueryTexts()) {
   // 读取本地存储中的重点项
   const importantItems = getImportantItems()
 
@@ -450,10 +467,8 @@ function genQuestionList() {
   })
 
   // 根据聊天内容中的提问生成li列表
-  Array.from(userQueryEls).forEach((el, index) => {
-    const lineEl = el.querySelector('.query-text-line')
-    if (!lineEl) return
-    const queryText = lineEl.textContent.replace(/\s+/g, ' ').trim()
+  queryTexts.forEach((queryText, index) => {
+    if (!queryText) return
     const text = index + 1 + '. ' + queryText
     const isImportant = importantItems.includes(queryText)
 
@@ -484,6 +499,7 @@ function genQuestionList() {
         cursor: pointer;
       `
     })
+    aEl.dataset.index = String(index)
 
     const btnEl = createElement({
       type: 'button',
@@ -532,25 +548,17 @@ function updateHighlight(targetIndex) {
 
 /** [功能] 点击滚动可视 */
 function hdlScrollClick() {
-  // 预先缓存问题文本，避免重复 DOM 查询并统一空白字符规范
-  const queryTexts = Array.from(userQueryEls).map((el) => el.querySelector('.query-text-line')?.textContent?.replace(/\s+/g, ' ').trim() || '')
-
   // 监听容器点击事件（使用事件委托）
   queryContainerEl.addEventListener('click', (e) => {
     // 只处理点击链接标签的情况
-    if (e.target.nodeName !== 'A') return
+    if (!(e.target instanceof Element)) return
+    const linkEl = e.target.closest('a')
+    if (!linkEl || !queryContainerEl.contains(linkEl)) return
 
-    // 从点击的文本中提取问题内容并规范空白字符（去掉序号）
-    const clickedText = e.target.innerText
-      .replace(/^\d+\. /, '')
-      .replace(/\s+/g, ' ')
-      .trim()
-
-    // 在缓存数组中查找匹配的索引
-    const targetIndex = queryTexts.indexOf(clickedText)
+    const targetIndex = Number(linkEl.dataset.index)
 
     // 如果没找到匹配项，直接返回
-    if (targetIndex === -1) return
+    if (!Number.isInteger(targetIndex) || targetIndex < 0) return
 
     // 更新高亮
     updateHighlight(targetIndex)
