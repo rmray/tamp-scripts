@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.4.0](https://github.com/rmray/tamp-scripts/compare/tm-gemini@1.3.0...tm-gemini@1.4.0) (2026-06-05)
+
+
+### Features
+
+* **gemini:** 更新格式化接口 ([b1b9406](https://github.com/rmray/tamp-scripts/commit/b1b9406ab7c70caff2645f7fcc8463027a114b86))
+* **gemini:** 性能优化 ([328773e](https://github.com/rmray/tamp-scripts/commit/328773ef07ee295570a756fddfa80dbea69fce4b))
+
+
+
+
+
 # [1.3.0](https://github.com/rmray/tamp-scripts/compare/tm-gemini@1.2.1...tm-gemini@1.3.0) (2026-05-21)
 
 

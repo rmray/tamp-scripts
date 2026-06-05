@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.6.0](https://github.com/rmray/tamp-scripts/compare/tm-twkan@1.5.0...tm-twkan@1.6.0) (2026-06-05)
+
+
+### Features
+
+* **twkan:** 格式化章节间的换行符 ([644886a](https://github.com/rmray/tamp-scripts/commit/644886a798421b1a1671f03df09e894214d818c9))
+
+
+
+
+
 # [1.5.0](https://github.com/rmray/tamp-scripts/compare/tm-twkan@1.4.0...tm-twkan@1.5.0) (2026-05-25)
 
 
