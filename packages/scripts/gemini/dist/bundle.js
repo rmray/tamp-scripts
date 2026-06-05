@@ -204,6 +204,46 @@
       background: #667eea;
       color: white;
     }
+    .fm-annotation-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+    .fm-annotation-label {
+      font-size: 14px;
+      color: #333;
+      cursor: pointer;
+      user-select: none;
+    }
+    .fm-annotation-toggle {
+      position: relative;
+      width: 40px;
+      height: 22px;
+      background: #e0e0e0;
+      border-radius: 11px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+      border: none;
+      padding: 0;
+    }
+    .fm-annotation-toggle::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 18px;
+      height: 18px;
+      background: white;
+      border-radius: 50%;
+      transition: transform 0.2s ease;
+    }
+    .fm-annotation-toggle.active {
+      background: #667eea;
+    }
+    .fm-annotation-toggle.active::after {
+      transform: translateX(18px);
+    }
     .fm-modal-buttons {
       display: flex;
       gap: 12px;
@@ -281,6 +321,7 @@
         modal.className = 'fm-modal';
 
         let selectedTop = 'H2';
+        let selectedAnnotation = false;
 
         // 创建模态框内容容器
         const modalContent = document.createElement('div');
@@ -289,8 +330,14 @@
         // 创建标题
         const title = document.createElement('div');
         title.className = 'fm-modal-title';
-        title.textContent = '选择顶级标题级别';
+        title.textContent = '格式化选项';
         modalContent.appendChild(title);
+
+        // 创建顶级标题提示
+        const topLabel = document.createElement('div');
+        topLabel.style.cssText = 'font-size: 14px; color: #666; margin-bottom: 8px;';
+        topLabel.textContent = '顶级标题级别';
+        modalContent.appendChild(topLabel);
 
         // 创建选项容器
         const optionsContainer = document.createElement('div');
@@ -314,6 +361,31 @@
 
         modalContent.appendChild(optionsContainer);
 
+        // 创建标注开关行
+        const annotationRow = document.createElement('div');
+        annotationRow.className = 'fm-annotation-row';
+
+        const annotationLabel = document.createElement('span');
+        annotationLabel.className = 'fm-annotation-label';
+        annotationLabel.textContent = '显示标注';
+
+        const annotationToggle = document.createElement('button');
+        annotationToggle.className = 'fm-annotation-toggle';
+        annotationToggle.type = 'button';
+
+        annotationToggle.addEventListener('click', () => {
+          selectedAnnotation = !selectedAnnotation;
+          annotationToggle.classList.toggle('active', selectedAnnotation);
+        });
+
+        annotationLabel.addEventListener('click', () => {
+          annotationToggle.click();
+        });
+
+        annotationRow.appendChild(annotationLabel);
+        annotationRow.appendChild(annotationToggle);
+        modalContent.appendChild(annotationRow);
+
         // 创建按钮容器
         const buttonsContainer = document.createElement('div');
         buttonsContainer.className = 'fm-modal-buttons';
@@ -333,7 +405,7 @@
         confirmBtn.textContent = '确认';
         confirmBtn.addEventListener('click', () => {
           modal.remove();
-          resolve(selectedTop);
+          resolve({ top: selectedTop, annotation: selectedAnnotation });
         });
 
         buttonsContainer.appendChild(cancelBtn);
@@ -365,15 +437,18 @@
     }
 
     // 发送格式化请求
-    function formatContent(content, top) {
+    function formatContent(content, top, annotation) {
       return new Promise((resolve, reject) => {
+        const body = { content, top };
+        if (annotation) body.annotation = true;
+
         GM_xmlhttpRequest({
           method: 'POST',
           url: API_URL,
           headers: {
             'Content-Type': 'application/json'
           },
-          data: JSON.stringify({ content, top }),
+          data: JSON.stringify(body),
           onload: (response) => {
             try {
               const data = JSON.parse(response.responseText);
@@ -409,15 +484,15 @@
         }
 
         // 显示选项弹窗
-        const top = await showOptionsModal();
-        if (!top) {
+        const options = await showOptionsModal();
+        if (!options) {
           btn.classList.remove('loading');
           btn.textContent = '格式化';
           return
         }
 
         // 发送格式化请求
-        const formatted = await formatContent(content, top);
+        const formatted = await formatContent(content, options.top, options.annotation);
 
         // 保存到剪切板
         GM_setClipboard(formatted, 'text');
