@@ -332,6 +332,8 @@
       '萬物希聲',
       '万相塔',
       '萬相塔',
+      '雙面法曹',
+      '重生95流金歲月',
       '无限魔神：没流量怎么下载？',
       '無限魔神：沒流量怎麼下載？'
     ];
@@ -512,8 +514,9 @@
 
     if (isXsw) {
       chapter = document.querySelector('h2')?.textContent?.trim() || '';
-      content =
-        document.querySelector('p#new_content')?.innerHTML || document.querySelector('div#content')?.innerHTML || '';
+      // 正文使用自定义标签 <chapter id="content">，需用 #content 选择器
+      const contentEl = document.querySelector('#content p') || document.querySelector('#content');
+      content = contentEl?.innerHTML || '';
     } else {
       chapter = document.querySelector('.txtnav > h1')?.textContent?.trim() || '';
       content = document.querySelector('#txtcontent0')?.innerHTML || document.querySelector('.txtnav')?.innerHTML || '';
@@ -540,6 +543,7 @@
       .replace('loadAdv(7, 3);', '')
       .replace('loadAdv(7,3);', '')
       .replace('&emsp;', '')
+      .replace(/\u2003/g, '')
 
       .replace(/.*([台臺][湾灣]小[说説說][网網]|twkan|xsw\.tw|域名|本书由|GOOGLE搜索).*/gi, '')
       .replace(
@@ -572,7 +576,7 @@
     // console.log('firstLine', firstLine)
 
     const firstLine = getFirstLine(content);
-    if (firstLine.trim() === chapter) {
+    if (firstLine && firstLine.trim() === chapter) {
       content = content.replace(firstLine, '');
     }
 

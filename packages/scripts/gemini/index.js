@@ -29,12 +29,8 @@ export async function main(config = {}) {
   // [功能] 监听延迟加载的网页元素
   elementObserver(() => {
     // [功能] 修改设置和帮助样式
-    const oldSettingBtn = document.querySelector(
-      'side-nav-action-button[data-test-id="settings-and-help-button"]'
-    )
-    const newSettingBtn = document.querySelector(
-      'button[data-test-id="mavatar-footer-settings-button"]'
-    )
+    const oldSettingBtn = document.querySelector('side-nav-action-button[data-test-id="settings-and-help-button"]')
+    const newSettingBtn = document.querySelector('button[data-test-id="mavatar-footer-settings-button"]')
     const settingEl = (oldSettingBtn || newSettingBtn)?.parentNode
     if (settingEl) {
       settingEl.style.margin = '0px'
@@ -243,7 +239,7 @@ export async function main(config = {}) {
       // 创建选项按钮
       ;['H1', 'H2', 'H3', 'H4', 'H5', 'H6'].forEach((h) => {
         const option = document.createElement('div')
-        option.className = `fm-option ${h === 'H1' ? 'selected' : ''}`
+        option.className = `fm-option ${h === 'H2' ? 'selected' : ''}`
         option.dataset.value = h
         option.textContent = h
 
@@ -634,11 +630,12 @@ function hdlImportantClick() {
     if (!liEl) return
 
     // 获取问题原始文本（去掉序号前缀）并规范空白字符
-    const queryText = liEl
-      .querySelector('a')
-      ?.innerText?.replace(/^\d+\. /, '')
-      ?.replace(/\s+/g, ' ')
-      ?.trim() || ''
+    const queryText =
+      liEl
+        .querySelector('a')
+        ?.innerText?.replace(/^\d+\. /, '')
+        ?.replace(/\s+/g, ' ')
+        ?.trim() || ''
     const importantItems = getImportantItems()
     const isCurrentlyImportant = liEl.dataset.important === 'true'
 
