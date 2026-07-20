@@ -35,6 +35,18 @@
   `);
   }
 
+  /** 获取URL */
+  function getUrl(urlStr = '') {
+    const href = urlStr || window.location.href; // https://fxc5.5qm5s.net/forum.php?mod=forumdisplay&fid=37&page=100
+    const url = new URL(href);
+    const origin = url.origin; // https://fxc5.5qm5s.net
+    const pathname = url.pathname; // /forum.php
+    const search = url.search; // ?mod=forumdisplay&fid=37&page=100
+    const searches = Object.fromEntries(new URLSearchParams(url.search)); // {mod: 'forumdisplay', fid: '37', page: '100'}
+
+    return { origin, pathname, search, searches }
+  }
+
   let _config = {
     baseUrl: null
   };
@@ -49,6 +61,8 @@
   let videoEl = null;
   let time = 60;
 
+  const url = getUrl();
+
   async function main(config = {}) {
     // 1. 初始化配置
     if (!config.BASE_API_URL) throw new Error('缺少配置项: BASE_API_URL')
@@ -61,16 +75,35 @@
       e.preventDefault();
 
       switch (e.key) {
+        // D键：快进1分钟
+        // A键：快退1分钟
+        // Q键：快进5分钟
+        // E键：快退5分钟
         case 'd':
           fastJump(time);
           break
         case 'a':
           fastJump(-time);
           break
-        // D键：快进1分钟
-        // A键：快退1分钟
+        case 'e':
+          fastJump(time * 5);
+          break
+        case 'q':
+          fastJump(-time * 5);
+          break
       }
     });
+
+    //
+    console.log('url.searches: ', url.searches);
+    // 搜索页
+    if (url.searches.mode === 'search') {
+      setTimeout(() => {
+        const FrameWrapperEl = document.querySelector('.wrap-view');
+        console.log('FrameWrapperEl: ', FrameWrapperEl);
+        FrameWrapperEl.style.width = 'unset';
+      }, 100);
+    }
   }
 
   function fastJump(seconds) {
