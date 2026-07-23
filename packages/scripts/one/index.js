@@ -3,8 +3,7 @@ import { api, getUrl } from 'tm-utils'
 // 全局变量
 let videoEl = null
 let time = 60
-
-const url = getUrl()
+let searchWidthIntervalId = null
 
 export async function main(config = {}) {
   // 1. 初始化配置
@@ -38,12 +37,44 @@ export async function main(config = {}) {
   })
 
   // 搜索页宽度扩大
-  if (url.searches.mode === 'search') {
-    setTimeout(() => {
-      const FrameWrapperEl = document.querySelector('.wrap-view')
-      FrameWrapperEl.style.width = 'unset'
-    }, 100)
+  expandSearchPageWidth()
+}
+
+/** 搜索结果页取消 .wrap-view 固定宽度 */
+function expandSearchPageWidth() {
+  const ensureWidthExpanded = () => {
+    if (getUrl().searches.mode !== 'search') {
+      clearInterval(searchWidthIntervalId)
+      searchWidthIntervalId = null
+      return
+    }
+
+    const frameWrapperEls = [...document.querySelectorAll('.wrap-view')]
+    if (frameWrapperEls.length === 0) return
+
+    frameWrapperEls.forEach((frameWrapperEl) => {
+      const width = frameWrapperEl.style.getPropertyValue('width')
+      const priority = frameWrapperEl.style.getPropertyPriority('width')
+
+      if (width !== 'unset' || priority !== 'important') {
+        frameWrapperEl.style.setProperty('width', 'unset', 'important')
+      }
+    })
+
+    const isWidthExpanded = frameWrapperEls.every((frameWrapperEl) => {
+      return frameWrapperEl.style.getPropertyValue('width') === 'unset' && frameWrapperEl.style.getPropertyPriority('width') === 'important'
+    })
+
+    if (isWidthExpanded) {
+      clearInterval(searchWidthIntervalId)
+      searchWidthIntervalId = null
+    }
   }
+
+  if (getUrl().searches.mode !== 'search' || searchWidthIntervalId !== null) return
+
+  searchWidthIntervalId = setInterval(ensureWidthExpanded, 500)
+  ensureWidthExpanded()
 }
 
 function fastJump(seconds) {
