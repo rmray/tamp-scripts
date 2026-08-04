@@ -71,26 +71,36 @@
 
     // 快进/快退
     document.addEventListener('keydown', (e) => {
-      e.preventDefault();
+      // 输入框聚焦时不拦截按键，避免影响 Backspace / Ctrl+V 等默认行为
+      const tag = e.target?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || e.target?.isContentEditable) return
+      // 仅在视频页面生效
+      if (!videoEl) return
 
+      let seconds;
       switch (e.key) {
         // D键：快进1分钟
         // A键：快退1分钟
         // Q键：快进5分钟
         // E键：快退5分钟
         case 'd':
-          fastJump(time);
+          seconds = time;
           break
         case 'a':
-          fastJump(-time);
+          seconds = -time;
           break
         case 'e':
-          fastJump(time * 5);
+          seconds = time * 5;
           break
         case 'q':
-          fastJump(-time * 5);
+          seconds = -time * 5;
           break
+        default:
+          return
       }
+
+      e.preventDefault();
+      fastJump(seconds);
     });
 
     // 搜索页宽度扩大
