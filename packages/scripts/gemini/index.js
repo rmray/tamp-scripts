@@ -260,7 +260,7 @@ export async function main(config = {}) {
       const modal = document.createElement('div')
       modal.className = 'fm-modal'
 
-      let selectedTop = 'H2'
+      let selectedTop = 'H3'
       let selectedAnnotation = false
 
       // 创建模态框内容容器
@@ -286,7 +286,7 @@ export async function main(config = {}) {
       // 创建选项按钮
       ;['H1', 'H2', 'H3', 'H4', 'H5', 'H6'].forEach((h) => {
         const option = document.createElement('div')
-        option.className = `fm-option ${h === 'H2' ? 'selected' : ''}`
+        option.className = `fm-option ${h === 'H3' ? 'selected' : ''}`
         option.dataset.value = h
         option.textContent = h
 

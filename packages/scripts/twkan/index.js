@@ -108,8 +108,9 @@ function calcUpdateCount() {
     const imgBoxEl = el.parentNode.parentNode.querySelector('.imgbox')
     imgBoxEl.style.position = 'relative'
     const countEl = createElement({ cNames: ['count'], text: disCount || '' })
+    console.log('disCount: ' + disCount)
     if (disCount >= 50) countEl.classList.add('count3')
-    else if (disCount >= 20) countEl.classList.add('count2')
+    else if (disCount >= 30) countEl.classList.add('count2')
     imgBoxEl.append(countEl)
   })
 }
@@ -128,6 +129,8 @@ function setBottom() {
     '万物希声',
     '萬物希聲',
     '万相塔',
+    '萬相塔',
+    '鬼上房',
     '萬相塔',
     '雙面法曹',
     '重生95流金歲月',
@@ -235,7 +238,7 @@ function updateXswBookcase() {
     if (disCount >= 50) {
       countEl.style.color = '#f00'
       countEl.style.fontWeight = 'bold'
-    } else if (disCount >= 20) {
+    } else if (disCount >= 30) {
       countEl.style.color = '#00f'
       countEl.style.fontWeight = 'bold'
     } else if (disCount > 0) {
