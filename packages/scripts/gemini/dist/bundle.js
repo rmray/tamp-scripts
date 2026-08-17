@@ -122,6 +122,7 @@
 
     // API 配置
     const API_URL = 'https://tool.mrer.top/api/format';
+    const NO_HEADING = 'NONE';
 
     // 注入样式
     function injectStyles() {
@@ -344,11 +345,11 @@
         optionsContainer.className = 'fm-modal-options'
 
         // 创建选项按钮
-        ;['H1', 'H2', 'H3', 'H4', 'H5', 'H6'].forEach((h) => {
+        ;['H1', 'H2', 'H3', 'H4', 'H5', 'H6', NO_HEADING].forEach((h) => {
           const option = document.createElement('div');
           option.className = `fm-option ${h === 'H3' ? 'selected' : ''}`;
           option.dataset.value = h;
-          option.textContent = h;
+          option.textContent = h === NO_HEADING ? '无标题' : h;
 
           option.addEventListener('click', () => {
             optionsContainer.querySelectorAll('.fm-option').forEach((o) => o.classList.remove('selected'));
